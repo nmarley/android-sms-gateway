@@ -640,7 +640,7 @@ class MessagesService(
             val subscriptionManager = SubscriptionsHelper.getSubscriptionsManager(context)
                 ?: throw UnsupportedOperationException("SIM selection available from API 22")
 
-            subscriptionManager.activeSubscriptionInfoList.find {
+            subscriptionManager.activeSubscriptionInfoList?.find {
                 it.simSlotIndex == simNumber
             }?.let {
                 if (Build.VERSION.SDK_INT < 31) {

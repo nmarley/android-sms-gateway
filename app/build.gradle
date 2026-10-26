@@ -10,63 +10,65 @@ ksp {
 }
 
 android {
-    compileSdk 33
+    compileSdk = 35
 
     defaultConfig {
-        applicationId "me.capcom.smsgateway"
-        minSdk 21
-        targetSdk 33
-        versionCode 1
-        versionName "1.0.0"
+        applicationId = "me.capcom.smsgateway"
+        minSdk = 21
+        targetSdk = 35
+        versionCode = 1
+        versionName = "1.0.0"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildFeatures {
-        viewBinding true
+        viewBinding = true
+        buildConfig = true
     }
     signingConfigs {
         release {
-            storeFile file("keystore.jks")
-            storePassword System.getenv("SIGNING_STORE_PASSWORD")
-            keyAlias System.getenv("SIGNING_KEY_ALIAS")
-            keyPassword System.getenv("SIGNING_KEY_PASSWORD")
+            storeFile = file("keystore.jks")
+            storePassword = System.getenv("SIGNING_STORE_PASSWORD")
+            keyAlias = System.getenv("SIGNING_KEY_ALIAS")
+            keyPassword = System.getenv("SIGNING_KEY_PASSWORD")
         }
     }
     buildTypes {
         debug {
-            debuggable true
+            debuggable = true
             manifestPlaceholders = [networkSecurityConfig: "@xml/network_security_config"]
         }
         debugInsecure {
-            debuggable true
+            debuggable = true
             manifestPlaceholders = [networkSecurityConfig: "@xml/network_security_config_insecure"]
-            signingConfig signingConfigs.debug
+            signingConfig = signingConfigs.debug
         }
         insecure {
             initWith debug
-            debuggable true
-            signingConfig signingConfigs.release
+            debuggable = true
+            signingConfig = signingConfigs.release
             manifestPlaceholders = [networkSecurityConfig: "@xml/network_security_config_insecure"]
         }
         release {
-            minifyEnabled false
+            minifyEnabled = false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
+            signingConfig = signingConfigs.release
             manifestPlaceholders = [networkSecurityConfig: "@xml/network_security_config"]
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = '1.8'
+    packaging {
+        resources {
+            excludes += [
+                'META-INF/INDEX.LIST',
+                'META-INF/io.netty.versions.properties',
+            ]
+        }
     }
-    packagingOptions {
-        exclude 'META-INF/INDEX.LIST'
-        exclude 'META-INF/io.netty.versions.properties'
-    }
-    namespace 'me.capcom.smsgateway'
+    namespace = 'me.capcom.smsgateway'
 
     testOptions {
         unitTests {
@@ -77,10 +79,16 @@ android {
     }
 }
 
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    }
+}
+
 dependencies {
     def ktor_version = "2.2.4"
     def okhttp_version = "4.10.0"
-    def room_version = "2.4.3"
+    def room_version = "2.7.2"
     def coroutines_version = "1.6.1"
     def work_version = "2.7.1"
     def koin_version = "3.4.0"
