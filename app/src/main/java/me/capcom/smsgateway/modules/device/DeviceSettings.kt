@@ -4,9 +4,7 @@ import me.capcom.smsgateway.modules.settings.Importer
 import me.capcom.smsgateway.modules.settings.KeyValueStorage
 import me.capcom.smsgateway.modules.settings.get
 
-class DeviceSettings(
-    private val storage: KeyValueStorage,
-) : Importer {
+class DeviceSettings(private val storage: KeyValueStorage) : Importer {
     private var version: Int
         get() = storage.get<Int>(VERSION) ?: 0
         set(value) = storage.set(VERSION, value)
@@ -30,18 +28,16 @@ class DeviceSettings(
         private const val KEY_ROTATION_INTERVAL_DAYS = "key_rotate_interval_days"
     }
 
-    override fun import(data: Map<String, *>): Boolean {
-        return data.map {
-            when (it.key) {
-                KEY_ROTATION_INTERVAL_DAYS -> {
-                    val newValue = it.value?.toString()?.toInt()
-                    val changed = keyRotationIntervalDays != newValue
-                    storage.set(it.key, newValue)
-                    changed
-                }
-
-                else -> false
+    override fun import(data: Map<String, *>): Boolean = data.map {
+        when (it.key) {
+            KEY_ROTATION_INTERVAL_DAYS -> {
+                val newValue = it.value?.toString()?.toInt()
+                val changed = keyRotationIntervalDays != newValue
+                storage.set(it.key, newValue)
+                changed
             }
-        }.any { it }
-    }
+
+            else -> false
+        }
+    }.any { it }
 }

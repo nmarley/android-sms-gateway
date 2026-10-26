@@ -7,5 +7,5 @@ data class MessagesTotals(
     val cancelled: Long,
     val sent: Long,
     val delivered: Long,
-    val failed: Long,
+    val failed: Long
 )

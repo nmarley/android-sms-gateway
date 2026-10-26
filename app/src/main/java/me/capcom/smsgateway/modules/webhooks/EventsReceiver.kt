@@ -1,6 +1,7 @@
 package me.capcom.smsgateway.modules.webhooks
 
 import android.util.Log
+import java.util.Date
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import me.capcom.smsgateway.domain.ProcessingState
@@ -12,7 +13,6 @@ import me.capcom.smsgateway.modules.ping.events.PingEvent
 import me.capcom.smsgateway.modules.webhooks.domain.WebHookEvent
 import me.capcom.smsgateway.modules.webhooks.payload.SmsEventPayload
 import org.koin.core.component.get
-import java.util.Date
 
 class EventsReceiver : EventsReceiver() {
     override suspend fun collect(eventBus: EventBus) {
@@ -55,7 +55,7 @@ class EventsReceiver : EventsReceiver() {
                                 partsCount = event.partsCount ?: -1,
                                 sentAt = Date(),
                                 sender = sender,
-                                recipient = destination,
+                                recipient = destination
                             )
 
                             WebHookEvent.SmsDelivered -> SmsEventPayload.SmsDelivered(
@@ -63,7 +63,7 @@ class EventsReceiver : EventsReceiver() {
                                 simNumber = event.simNumber,
                                 deliveredAt = Date(),
                                 sender = sender,
-                                recipient = destination,
+                                recipient = destination
                             )
 
                             WebHookEvent.SmsFailed -> SmsEventPayload.SmsFailed(
@@ -72,7 +72,7 @@ class EventsReceiver : EventsReceiver() {
                                 failedAt = Date(),
                                 reason = event.error ?: "Unknown",
                                 sender = sender,
-                                recipient = destination,
+                                recipient = destination
                             )
 
                             WebHookEvent.SmsCancelled -> SmsEventPayload.SmsCancelled(
@@ -80,14 +80,16 @@ class EventsReceiver : EventsReceiver() {
                                 simNumber = event.simNumber,
                                 cancelledAt = Date(),
                                 sender = sender,
-                                recipient = destination,
+                                recipient = destination
                             )
 
                             else -> return@forEach
                         }
 
                         get<WebHooksService>().emit(
-                            get(), webhookEventType, payload
+                            get(),
+                            webhookEventType,
+                            payload
                         )
                     }
                 }

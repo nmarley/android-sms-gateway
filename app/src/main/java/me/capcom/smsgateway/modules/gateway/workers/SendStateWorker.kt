@@ -10,6 +10,8 @@ import androidx.work.WorkManager
 import androidx.work.WorkRequest
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
+import java.util.Date
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.capcom.smsgateway.modules.gateway.GatewayApi
@@ -17,11 +19,10 @@ import me.capcom.smsgateway.modules.gateway.GatewayService
 import me.capcom.smsgateway.modules.messages.MessagesService
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import java.util.Date
-import java.util.concurrent.TimeUnit
 
 class SendStateWorker(appContext: Context, params: WorkerParameters) :
-    CoroutineWorker(appContext, params), KoinComponent {
+    CoroutineWorker(appContext, params),
+    KoinComponent {
     private val messagesService: MessagesService by inject()
     private val gatewayService: GatewayService by inject()
     override suspend fun doWork(): Result {
@@ -41,7 +42,7 @@ class SendStateWorker(appContext: Context, params: WorkerParameters) :
                                 it.error
                             )
                         },
-                        message.states.associate { it.state to Date(it.updatedAt) },
+                        message.states.associate { it.state to Date(it.updatedAt) }
                     )
                 )
             }

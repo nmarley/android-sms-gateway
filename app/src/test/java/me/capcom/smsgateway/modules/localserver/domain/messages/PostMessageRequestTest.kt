@@ -7,17 +7,16 @@ import org.junit.Test
 
 internal class PostMessageRequestTest {
 
-    private fun request(phoneNumbers: List<String>): PostMessageRequest =
-        PostMessageRequest(
-            id = null,
-            message = "test",
-            phoneNumbers = phoneNumbers,
-            simNumber = null,
-            withDeliveryReport = null,
-            isEncrypted = null,
-            _ttl = null,
-            _validUntil = null,
-        )
+    private fun request(phoneNumbers: List<String>): PostMessageRequest = PostMessageRequest(
+        id = null,
+        message = "test",
+        phoneNumbers = phoneNumbers,
+        simNumber = null,
+        withDeliveryReport = null,
+        isEncrypted = null,
+        _ttl = null,
+        _validUntil = null
+    )
 
     @Test
     fun duplicatePhoneNumbersThrows() {

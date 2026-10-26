@@ -9,8 +9,8 @@ object PhoneHelper {
         if (!phoneUtil.isValidNumber(number)) {
             throw RuntimeException("Invalid phone number")
         }
-        if (phoneUtil.getNumberType(number) != PhoneNumberUtil.PhoneNumberType.MOBILE
-            && phoneUtil.getNumberType(number) != PhoneNumberUtil.PhoneNumberType.FIXED_LINE_OR_MOBILE
+        if (phoneUtil.getNumberType(number) != PhoneNumberUtil.PhoneNumberType.MOBILE &&
+            phoneUtil.getNumberType(number) != PhoneNumberUtil.PhoneNumberType.FIXED_LINE_OR_MOBILE
         ) {
             throw RuntimeException("Invalid phone number type")
         }

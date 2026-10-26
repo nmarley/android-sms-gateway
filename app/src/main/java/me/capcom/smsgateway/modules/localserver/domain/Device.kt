@@ -26,5 +26,5 @@ data class Device(
     val lastSeen: Date,
     val simCards: List<SimCard> = emptyList(),
     val publicKey: String? = null,
-    val keyVersion: Int? = null,
+    val keyVersion: Int? = null
 )

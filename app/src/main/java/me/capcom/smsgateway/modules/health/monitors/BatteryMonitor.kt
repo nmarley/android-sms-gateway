@@ -7,9 +7,7 @@ import android.os.BatteryManager
 import me.capcom.smsgateway.modules.health.domain.CheckResult
 import me.capcom.smsgateway.modules.health.domain.Status
 
-class BatteryMonitor(
-    private val context: Context
-) {
+class BatteryMonitor(private val context: Context) {
     fun healthCheck(): Map<String, CheckResult> {
         val batteryStatus: Intent? = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
             .let { ifilter ->
@@ -57,7 +55,7 @@ class BatteryMonitor(
                 },
                 "flags",
                 "Is the phone charging?"
-            ),
+            )
         )
     }
 }

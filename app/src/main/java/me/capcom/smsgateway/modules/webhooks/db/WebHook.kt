@@ -11,5 +11,5 @@ data class WebHook(
     val id: String,
     val url: String,
     val event: WebHookEvent,
-    val source: EntitySource,
+    val source: EntitySource
 )

@@ -11,7 +11,7 @@ class MessageSortTest {
         val tests = mapOf(
             null to MessageSort.CreatedAtDesc,
             "created_at" to MessageSort.CreatedAtAsc,
-            "-created_at" to MessageSort.CreatedAtDesc,
+            "-created_at" to MessageSort.CreatedAtDesc
         )
 
         tests.forEach { (raw, expected) ->
@@ -23,11 +23,11 @@ class MessageSortTest {
     fun parseInvalidValues() {
         val invalidValues = listOf(
             "",
-            "createdAt",      // PascalCase
-            "asc",            // not a wire value
-            "order",          // different param concept (lifo/fifo)
-            "CREATED_AT",     // uppercase
-            "-created_at ",   // trailing space
+            "createdAt", // PascalCase
+            "asc", // not a wire value
+            "order", // different param concept (lifo/fifo)
+            "CREATED_AT", // uppercase
+            "-created_at " // trailing space
         )
 
         invalidValues.forEach { raw ->

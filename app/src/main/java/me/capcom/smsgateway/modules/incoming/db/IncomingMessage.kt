@@ -8,14 +8,14 @@ enum class IncomingMessageType {
     SMS,
     DATA_SMS,
     MMS,
-    MMS_DOWNLOADED,
+    MMS_DOWNLOADED
 }
 
 @Entity(
     tableName = "incoming_messages",
     indices = [
         Index(value = ["createdAt"]),
-        Index(value = ["type"]),
+        Index(value = ["type"])
     ]
 )
 data class IncomingMessage(
@@ -26,5 +26,5 @@ data class IncomingMessage(
     val simNumber: Int?,
     val subscriptionId: Int?,
     val contentPreview: String,
-    val createdAt: Long = System.currentTimeMillis(),
+    val createdAt: Long = System.currentTimeMillis()
 )

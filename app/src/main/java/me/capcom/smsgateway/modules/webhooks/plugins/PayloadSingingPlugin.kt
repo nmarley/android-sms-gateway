@@ -27,7 +27,8 @@ val PayloadSingingPlugin =
 
                 request.header(timestampHeaderName, timestamp)
                 request.header(
-                    headerName, generateSignature(
+                    headerName,
+                    generateSignature(
                         algorithm,
                         secretKey,
                         message
@@ -55,6 +56,4 @@ fun generateSignature(algorithm: String, secretKey: String, payload: String): St
     return hash.toHexString()
 }
 
-private fun ByteArray.toHexString(): String {
-    return joinToString("") { "%02x".format(it) }
-}
+private fun ByteArray.toHexString(): String = joinToString("") { "%02x".format(it) }

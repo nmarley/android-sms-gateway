@@ -9,12 +9,12 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.provider.Telephony
 import androidx.core.content.ContextCompat
+import java.util.Date
 import me.capcom.smsgateway.modules.logs.LogsService
 import me.capcom.smsgateway.modules.logs.db.LogEntry
 import me.capcom.smsgateway.modules.receiver.data.InboxMessage
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import java.util.Date
 
 /**
  * Fallback SMS ingest for carriers / device configurations where the
@@ -45,7 +45,7 @@ class SmsContentObserver : KoinComponent {
             logsService.insert(
                 LogEntry.Priority.WARN,
                 MODULE_NAME,
-                "SMS inbox observer not started because READ_SMS is not granted",
+                "SMS inbox observer not started because READ_SMS is not granted"
             )
             return
         }
@@ -74,7 +74,7 @@ class SmsContentObserver : KoinComponent {
         context.contentResolver.registerContentObserver(
             Uri.parse("content://sms"),
             true,
-            obs,
+            obs
         )
 
         // Catch up rows that arrived while the app process was stopped or before
@@ -97,15 +97,16 @@ class SmsContentObserver : KoinComponent {
             context.contentResolver.query(
                 Telephony.Sms.Inbox.CONTENT_URI,
                 arrayOf(Telephony.Sms._ID),
-                null, null,
-                Telephony.Sms._ID + " DESC LIMIT 1",
+                null,
+                null,
+                Telephony.Sms._ID + " DESC LIMIT 1"
             )
         } catch (e: SecurityException) {
             logsService.insert(
                 LogEntry.Priority.WARN,
                 MODULE_NAME,
                 "Unable to initialize SMS inbox high-water mark because provider access was denied",
-                mapOf("error" to (e.message ?: e.toString())),
+                mapOf("error" to (e.message ?: e.toString()))
             )
             return 0
         } ?: return 0
@@ -120,7 +121,7 @@ class SmsContentObserver : KoinComponent {
             logsService.insert(
                 LogEntry.Priority.WARN,
                 MODULE_NAME,
-                "Skipping SMS inbox processing because READ_SMS is not granted",
+                "Skipping SMS inbox processing because READ_SMS is not granted"
             )
             return
         }
@@ -131,7 +132,7 @@ class SmsContentObserver : KoinComponent {
             Telephony.Sms._ID,
             Telephony.Sms.ADDRESS,
             Telephony.Sms.DATE_SENT,
-            Telephony.Sms.BODY,
+            Telephony.Sms.BODY
         )
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
             projection += Telephony.Sms.SUBSCRIPTION_ID
@@ -143,14 +144,14 @@ class SmsContentObserver : KoinComponent {
                 projection.toTypedArray(),
                 Telephony.Sms._ID + " > ?",
                 arrayOf(mark.toString()),
-                Telephony.Sms._ID + " ASC",
+                Telephony.Sms._ID + " ASC"
             )
         } catch (e: SecurityException) {
             logsService.insert(
                 LogEntry.Priority.WARN,
                 MODULE_NAME,
                 "Skipping SMS inbox processing because provider access was denied",
-                mapOf("error" to (e.message ?: e.toString())),
+                mapOf("error" to (e.message ?: e.toString()))
             )
             return
         } ?: return
@@ -171,14 +172,14 @@ class SmsContentObserver : KoinComponent {
                     receiverSvc.process(
                         context,
                         InboxMessage.Text(body, address, date, subId),
-                        true,
+                        true
                     )
                 } catch (e: Exception) {
                     logsService.insert(
                         LogEntry.Priority.ERROR,
                         MODULE_NAME,
                         "Failed processing inbox SMS (id=$id)",
-                        mapOf("smsId" to id, "error" to (e.message ?: e.toString())),
+                        mapOf("smsId" to id, "error" to (e.message ?: e.toString()))
                     )
                 }
                 storage.smsLastProcessedID = id
@@ -188,7 +189,7 @@ class SmsContentObserver : KoinComponent {
 
     private fun canReadSms(): Boolean = ContextCompat.checkSelfPermission(
         context,
-        android.Manifest.permission.READ_SMS,
+        android.Manifest.permission.READ_SMS
     ) == PackageManager.PERMISSION_GRANTED
 
     companion object {

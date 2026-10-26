@@ -1,7 +1,6 @@
 package me.capcom.smsgateway.modules.encryption.providers
 
 import android.util.Base64
-import me.capcom.smsgateway.modules.device.DeviceService
 import java.security.KeyFactory
 import java.security.SecureRandom
 import java.security.spec.MGF1ParameterSpec
@@ -11,15 +10,14 @@ import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.OAEPParameterSpec
 import javax.crypto.spec.PSource
 import javax.crypto.spec.SecretKeySpec
+import me.capcom.smsgateway.modules.device.DeviceService
 
-class RSAEncryptionProvider(
-    private val deviceService: DeviceService,
-) : EncryptionProvider {
+class RSAEncryptionProvider(private val deviceService: DeviceService) : EncryptionProvider {
     override suspend fun encrypt(plainText: String): String {
         val deviceKey = deviceService.ensureKey()
             ?: throw RuntimeException("No E2E key pair available")
         val publicKey = KeyFactory.getInstance(RSA_ALGORITHM).generatePublic(
-            X509EncodedKeySpec(Base64.decode(deviceKey.publicKeyBase64, Base64.NO_WRAP)),
+            X509EncodedKeySpec(Base64.decode(deviceKey.publicKeyBase64, Base64.NO_WRAP))
         )
 
         val random = SecureRandom()
@@ -36,8 +34,8 @@ class RSAEncryptionProvider(
                 "SHA-256",
                 "MGF1",
                 MGF1ParameterSpec.SHA256,
-                PSource.PSpecified.DEFAULT,
-            ),
+                PSource.PSpecified.DEFAULT
+            )
         )
         val encryptedAesKey = rsaCipher.doFinal(aesKeyBytes)
 
@@ -46,7 +44,7 @@ class RSAEncryptionProvider(
         aesCipher.init(
             Cipher.ENCRYPT_MODE,
             aesKey,
-            GCMParameterSpec(GCM_TAG_LENGTH_BITS, iv),
+            GCMParameterSpec(GCM_TAG_LENGTH_BITS, iv)
         )
         val ciphertext = aesCipher.doFinal(plainText.toByteArray(Charsets.UTF_8))
 
@@ -55,7 +53,7 @@ class RSAEncryptionProvider(
             "k=${deviceKey.keyVersion}",
             Base64.encodeToString(encryptedAesKey, Base64.NO_WRAP),
             Base64.encodeToString(iv, Base64.NO_WRAP),
-            Base64.encodeToString(ciphertext, Base64.NO_WRAP),
+            Base64.encodeToString(ciphertext, Base64.NO_WRAP)
         ).joinToString("$")
     }
 
@@ -92,8 +90,8 @@ class RSAEncryptionProvider(
                 "SHA-256",
                 "MGF1",
                 MGF1ParameterSpec.SHA256,
-                PSource.PSpecified.DEFAULT,
-            ),
+                PSource.PSpecified.DEFAULT
+            )
         )
         val aesKeyBytes = rsaCipher.doFinal(encryptedAesKey)
 

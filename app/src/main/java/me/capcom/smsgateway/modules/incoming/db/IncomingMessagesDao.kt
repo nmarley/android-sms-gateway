@@ -46,13 +46,7 @@ interface IncomingMessagesDao {
         LIMIT :limit OFFSET :offset
         """
     )
-    suspend fun select(
-        type: IncomingMessageType?,
-        from: Long,
-        to: Long,
-        limit: Int,
-        offset: Int
-    ): List<IncomingMessage>
+    suspend fun select(type: IncomingMessageType?, from: Long, to: Long, limit: Int, offset: Int): List<IncomingMessage>
 
     @Query("SELECT * FROM incoming_messages WHERE id = :id LIMIT 1")
     fun selectById(id: String): IncomingMessage?

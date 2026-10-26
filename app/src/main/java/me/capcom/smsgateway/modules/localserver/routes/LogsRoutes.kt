@@ -11,9 +11,7 @@ import me.capcom.smsgateway.modules.localserver.auth.requireScope
 import me.capcom.smsgateway.modules.localserver.domain.GetLogsResponse
 import me.capcom.smsgateway.modules.logs.LogsService
 
-class LogsRoutes(
-    private val logsService: LogsService,
-) {
+class LogsRoutes(private val logsService: LogsService) {
 
     fun register(routing: Route) {
         routing.apply {

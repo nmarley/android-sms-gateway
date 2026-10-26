@@ -10,8 +10,8 @@ import androidx.room.PrimaryKey
     indices = [
         Index("expiresAt"),
         Index("tokenUse"),
-        Index("parentJti"),
-    ],
+        Index("parentJti")
+    ]
 )
 data class Token(
     @PrimaryKey
@@ -20,7 +20,7 @@ data class Token(
     val revokedAt: Long? = null,
     @ColumnInfo(defaultValue = "access")
     val tokenUse: String = TokenUse.Access.value,
-    val parentJti: String? = null,
+    val parentJti: String? = null
 )
 
 enum class TokenUse(val value: String) {
@@ -28,8 +28,6 @@ enum class TokenUse(val value: String) {
     Refresh("refresh");
 
     companion object {
-        fun isValid(value: String): Boolean {
-            return values().any { it.value == value }
-        }
+        fun isValid(value: String): Boolean = values().any { it.value == value }
     }
 }

@@ -5,15 +5,15 @@ import me.capcom.smsgateway.modules.settings.Importer
 import me.capcom.smsgateway.modules.settings.KeyValueStorage
 import me.capcom.smsgateway.modules.settings.get
 
-class MessagesSettings(
-    private val storage: KeyValueStorage,
-) : Exporter, Importer {
+class MessagesSettings(private val storage: KeyValueStorage) :
+    Exporter,
+    Importer {
     enum class Period(val duration: Long) {
         Disabled(0L),
         PerMinute(60000L),
         Per30Minutes(1800000L),
         PerHour(3600000L),
-        PerDay(86400000L),
+        PerDay(86400000L)
     }
 
     enum class SimSelectionMode {
@@ -23,7 +23,8 @@ class MessagesSettings(
     }
 
     enum class ProcessingOrder {
-        LIFO, FIFO
+        LIFO,
+        FIFO
     }
 
     private var version: Int
@@ -141,9 +142,9 @@ class MessagesSettings(
         }
 
         if (version < 1) {
-            val SECONDS_BETWEEN_MESSAGES = "SECONDS_BETWEEN_MESSAGES"
+            val secondsBetweenMessages = "secondsBetweenMessages"
 
-            storage.set(SEND_INTERVAL_MAX, storage.get<Int>(SECONDS_BETWEEN_MESSAGES)?.toString())
+            storage.set(SEND_INTERVAL_MAX, storage.get<Int>(secondsBetweenMessages)?.toString())
         }
 
         version = VERSION_CODE
@@ -170,142 +171,138 @@ class MessagesSettings(
         private const val WORK_HOURS_END = "work_hours_end"
     }
 
-    override fun export(): Map<String, *> {
-        return mapOf(
-            SEND_INTERVAL_MIN to sendIntervalMin,
-            SEND_INTERVAL_MAX to sendIntervalMax,
-            LIMIT_PERIOD to limitPeriod.name,
-            LIMIT_VALUE to limitValue,
-            SIM_SELECTION_MODE to simSelectionMode.name,
-            LOG_LIFETIME_DAYS to logLifetimeDays,
-            PROCESSING_ORDER to processingOrder.name,
-            WORK_HOURS_ENABLED to workHoursEnabled,
-            WORK_HOURS_START to workHoursStart,
-            WORK_HOURS_END to workHoursEnd,
-        )
-    }
+    override fun export(): Map<String, *> = mapOf(
+        SEND_INTERVAL_MIN to sendIntervalMin,
+        SEND_INTERVAL_MAX to sendIntervalMax,
+        LIMIT_PERIOD to limitPeriod.name,
+        LIMIT_VALUE to limitValue,
+        SIM_SELECTION_MODE to simSelectionMode.name,
+        LOG_LIFETIME_DAYS to logLifetimeDays,
+        PROCESSING_ORDER to processingOrder.name,
+        WORK_HOURS_ENABLED to workHoursEnabled,
+        WORK_HOURS_START to workHoursStart,
+        WORK_HOURS_END to workHoursEnd
+    )
 
-    override fun import(data: Map<String, *>): Boolean {
-        return data.map {
-            val key = it.key
-            val value = it.value
+    override fun import(data: Map<String, *>): Boolean = data.map {
+        val key = it.key
+        val value = it.value
 
-            when (key) {
-                SEND_INTERVAL_MIN -> {
-                    val newValue = value?.toString()?.toFloat()?.toInt()
-                    val changed = this.sendIntervalMin != newValue
+        when (key) {
+            SEND_INTERVAL_MIN -> {
+                val newValue = value?.toString()?.toFloat()?.toInt()
+                val changed = this.sendIntervalMin != newValue
 
-                    storage.set(
-                        key,
-                        newValue?.toString()
-                    )
+                storage.set(
+                    key,
+                    newValue?.toString()
+                )
 
-                    changed
-                }
-
-                SEND_INTERVAL_MAX -> {
-                    val newValue = value?.toString()?.toFloat()?.toInt()
-                    val changed = this.sendIntervalMax != newValue
-
-                    storage.set(
-                        key,
-                        newValue?.toString()
-                    )
-
-                    changed
-                }
-
-                LIMIT_PERIOD -> {
-                    val newValue = value?.let { Period.valueOf(it.toString()) } ?: Period.Disabled
-                    val changed = this.limitPeriod != newValue
-
-                    storage.set(key, newValue.name)
-
-                    changed
-                }
-
-                LIMIT_VALUE -> {
-                    val limitValue = value?.toString()?.toFloat()?.toInt()
-                    if (limitValue != null && limitValue < 0) {
-                        throw IllegalArgumentException("Limit value must be >= 0")
-                    }
-
-                    val changed = this.limitValue != (limitValue ?: 0)
-
-                    storage.set(key, limitValue?.toString())
-
-                    changed
-                }
-
-                SIM_SELECTION_MODE -> {
-                    val newValue = value?.let { SimSelectionMode.valueOf(it.toString()) }
-                        ?: SimSelectionMode.OSDefault
-                    val changed = this.simSelectionMode != newValue
-
-                    storage.set(key, newValue.name)
-
-                    changed
-                }
-
-                PROCESSING_ORDER -> {
-                    val newValue = value?.let { ProcessingOrder.valueOf(it.toString()) }
-                        ?: ProcessingOrder.LIFO
-                    val changed = this.processingOrder != newValue
-
-                    storage.set(key, newValue.name)
-
-                    changed
-                }
-
-                LOG_LIFETIME_DAYS -> {
-                    val logLifetimeDays = value?.toString()?.toFloat()?.toInt()
-                    if (logLifetimeDays != null && logLifetimeDays < 1) {
-                        throw IllegalArgumentException("Log lifetime days must be >= 1")
-                    }
-
-                    val changed = this.logLifetimeDays != logLifetimeDays
-                    storage.set(key, logLifetimeDays?.toString())
-
-                    changed
-                }
-
-                WORK_HOURS_ENABLED -> {
-                    val newValue = value?.toString()?.toBooleanStrictOrNull() ?: false
-                    val changed = this.workHoursEnabled != newValue
-
-                    storage.set(key, newValue)
-
-                    changed
-                }
-
-                WORK_HOURS_START -> {
-                    val raw = value?.toString()
-                    if (raw != null && !isValidTimeFormat(raw)) {
-                        throw IllegalArgumentException("Invalid time format: $raw")
-                    }
-                    val newValue = if (raw != null && isValidTimeFormat(raw)) raw else "09:00"
-                    val changed = this.workHoursStart != newValue
-
-                    storage.set(key, newValue)
-
-                    changed
-                }
-
-                WORK_HOURS_END -> {
-                    val raw = value?.toString()
-                    if (raw != null && !isValidTimeFormat(raw)) {
-                        throw IllegalArgumentException("Invalid time format: $raw")
-                    }
-                    val newValue = if (raw != null && isValidTimeFormat(raw)) raw else "19:00"
-                    val changed = this.workHoursEnd != newValue
-
-                    storage.set(key, newValue)
-
-                    changed
-                }
-
-                else -> false
+                changed
             }
-        }.any { it }
-    }
+
+            SEND_INTERVAL_MAX -> {
+                val newValue = value?.toString()?.toFloat()?.toInt()
+                val changed = this.sendIntervalMax != newValue
+
+                storage.set(
+                    key,
+                    newValue?.toString()
+                )
+
+                changed
+            }
+
+            LIMIT_PERIOD -> {
+                val newValue = value?.let { Period.valueOf(it.toString()) } ?: Period.Disabled
+                val changed = this.limitPeriod != newValue
+
+                storage.set(key, newValue.name)
+
+                changed
+            }
+
+            LIMIT_VALUE -> {
+                val limitValue = value?.toString()?.toFloat()?.toInt()
+                if (limitValue != null && limitValue < 0) {
+                    throw IllegalArgumentException("Limit value must be >= 0")
+                }
+
+                val changed = this.limitValue != (limitValue ?: 0)
+
+                storage.set(key, limitValue?.toString())
+
+                changed
+            }
+
+            SIM_SELECTION_MODE -> {
+                val newValue = value?.let { SimSelectionMode.valueOf(it.toString()) }
+                    ?: SimSelectionMode.OSDefault
+                val changed = this.simSelectionMode != newValue
+
+                storage.set(key, newValue.name)
+
+                changed
+            }
+
+            PROCESSING_ORDER -> {
+                val newValue = value?.let { ProcessingOrder.valueOf(it.toString()) }
+                    ?: ProcessingOrder.LIFO
+                val changed = this.processingOrder != newValue
+
+                storage.set(key, newValue.name)
+
+                changed
+            }
+
+            LOG_LIFETIME_DAYS -> {
+                val logLifetimeDays = value?.toString()?.toFloat()?.toInt()
+                if (logLifetimeDays != null && logLifetimeDays < 1) {
+                    throw IllegalArgumentException("Log lifetime days must be >= 1")
+                }
+
+                val changed = this.logLifetimeDays != logLifetimeDays
+                storage.set(key, logLifetimeDays?.toString())
+
+                changed
+            }
+
+            WORK_HOURS_ENABLED -> {
+                val newValue = value?.toString()?.toBooleanStrictOrNull() ?: false
+                val changed = this.workHoursEnabled != newValue
+
+                storage.set(key, newValue)
+
+                changed
+            }
+
+            WORK_HOURS_START -> {
+                val raw = value?.toString()
+                if (raw != null && !isValidTimeFormat(raw)) {
+                    throw IllegalArgumentException("Invalid time format: $raw")
+                }
+                val newValue = if (raw != null && isValidTimeFormat(raw)) raw else "09:00"
+                val changed = this.workHoursStart != newValue
+
+                storage.set(key, newValue)
+
+                changed
+            }
+
+            WORK_HOURS_END -> {
+                val raw = value?.toString()
+                if (raw != null && !isValidTimeFormat(raw)) {
+                    throw IllegalArgumentException("Invalid time format: $raw")
+                }
+                val newValue = if (raw != null && isValidTimeFormat(raw)) raw else "19:00"
+                val changed = this.workHoursEnd != newValue
+
+                storage.set(key, newValue)
+
+                changed
+            }
+
+            else -> false
+        }
+    }.any { it }
 }

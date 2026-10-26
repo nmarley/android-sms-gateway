@@ -7,5 +7,5 @@ abstract class MessageEventPayload(
     val simNumber: Int?,
 
     @Deprecated("Use sender for received events, recipient for sent events")
-    val phoneNumber: String,
+    val phoneNumber: String
 )

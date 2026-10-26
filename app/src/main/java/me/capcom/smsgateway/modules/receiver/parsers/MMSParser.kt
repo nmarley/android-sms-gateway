@@ -1,11 +1,10 @@
 package me.capcom.smsgateway.modules.receiver.parsers
 
-import me.capcom.smsgateway.modules.mms.pdu.aosp.CharacterSets
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.charset.Charset
 import java.util.Date
-
+import me.capcom.smsgateway.modules.mms.pdu.aosp.CharacterSets
 
 object MMSParser {
     private const val HEADER_MESSAGE_TYPE = 0x8C
@@ -37,7 +36,6 @@ object MMSParser {
     private const val HEADER_MESSAGE_ID = 0x8B
     private const val HEADER_DATE = 0x85
 
-
     // Message type values from 7.3.30
     private const val MESSAGE_TYPE_NOTIFICATION_IND = 130
 
@@ -54,7 +52,7 @@ object MMSParser {
         VIDEO_RICH(0x84),
         MEGAPIXEL(0x85),
         CONTENT_BASIC(0x86),
-        CONTENT_RICH(0x87);
+        CONTENT_RICH(0x87)
     }
 
     data class MNotificationInd(
@@ -65,7 +63,7 @@ object MMSParser {
         val subject: String?,
         val messageSize: Long,
         val contentClass: ContentClass?,
-        val contentLocation: String?,
+        val contentLocation: String?
     )
 
     fun parseMNotificationInd(pdu: ByteArray): MNotificationInd {
@@ -123,7 +121,7 @@ object MMSParser {
             subject = headers[HEADER_SUBJECT] as String?,
             messageSize = headers[HEADER_MESSAGE_SIZE] as Long,
             contentClass = headers[HEADER_CONTENT_CLASS] as ContentClass?,
-            contentLocation = headers[HEADER_CONTENT_LOCATION] as String?,
+            contentLocation = headers[HEADER_CONTENT_LOCATION] as String?
         )
     }
 
@@ -137,9 +135,7 @@ object MMSParser {
         return parseEncodedString(buffer)
     }
 
-    private fun parseShortInteger(buffer: ByteBuffer): Int {
-        return buffer.get().toInt() and 0xFF
-    }
+    private fun parseShortInteger(buffer: ByteBuffer): Int = buffer.get().toInt() and 0xFF
 
     private fun parseLongInteger(buffer: ByteBuffer): Long {
         val length = parseShortInteger(buffer) // number of octets to read
@@ -217,13 +213,13 @@ object MMSParser {
         parseValueLength(buffer) // skip length
 
         return when (parseShortInteger(buffer)) {
-            128 -> parseLongInteger(buffer)  // Absolute time
-            129 -> parseLongInteger(buffer)  // Relative time
+            128 -> parseLongInteger(buffer) // Absolute time
+            129 -> parseLongInteger(buffer) // Relative time
             else -> 0L
         }
     }
 
-    ///
+    // /
     private const val LENGTH_QUOTE = 31
     private const val SHORT_LENGTH_MAX = 30
 

@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import java.text.DateFormat
+import java.util.Date
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -17,8 +19,6 @@ import me.capcom.smsgateway.modules.webhooks.WebhookPayloadStorage
 import me.capcom.smsgateway.modules.webhooks.db.WebhookQueueDao
 import me.capcom.smsgateway.modules.webhooks.db.WebhookQueueEntity
 import org.koin.android.ext.android.inject
-import java.text.DateFormat
-import java.util.Date
 
 class WebhookQueueDetailFragment : Fragment() {
     private val dao: WebhookQueueDao by inject()
@@ -30,11 +30,7 @@ class WebhookQueueDetailFragment : Fragment() {
     private val webhookId: String
         get() = requireNotNull(requireArguments().getString(ARG_ID)) { "id is null" }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentWebhookQueueDetailBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -54,10 +50,7 @@ class WebhookQueueDetailFragment : Fragment() {
         }
     }
 
-    private suspend fun bindEntity(
-        binding: FragmentWebhookQueueDetailBinding,
-        entity: WebhookQueueEntity
-    ) {
+    private suspend fun bindEntity(binding: FragmentWebhookQueueDetailBinding, entity: WebhookQueueEntity) {
         binding.apply {
             textWebhookId.text = getString(R.string.webhook_id_format, entity.id)
             textUrl.text = entity.url
@@ -96,9 +89,7 @@ class WebhookQueueDetailFragment : Fragment() {
         }
     }
 
-    private fun formatTimestamp(timestamp: Long): String {
-        return DateFormat.getDateTimeInstance().format(Date(timestamp))
-    }
+    private fun formatTimestamp(timestamp: Long): String = DateFormat.getDateTimeInstance().format(Date(timestamp))
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -107,11 +98,10 @@ class WebhookQueueDetailFragment : Fragment() {
 
     companion object {
         private const val ARG_ID = "id"
-        fun newInstance(id: String) =
-            WebhookQueueDetailFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_ID, id)
-                }
+        fun newInstance(id: String) = WebhookQueueDetailFragment().apply {
+            arguments = Bundle().apply {
+                putString(ARG_ID, id)
             }
+        }
     }
 }

@@ -7,7 +7,9 @@ import me.capcom.smsgateway.modules.orchestrator.OrchestratorService
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 
-class BootReceiver : BroadcastReceiver(), KoinComponent {
+class BootReceiver :
+    BroadcastReceiver(),
+    KoinComponent {
 
     override fun onReceive(context: Context, intent: Intent) {
         if (!events.contains(intent.action)) return
@@ -23,7 +25,7 @@ class BootReceiver : BroadcastReceiver(), KoinComponent {
             Intent.ACTION_REBOOT,
             "android.intent.action.QUICKBOOT_POWERON",
             "com.htc.intent.action.QUICKBOOT_POWERON",
-            Intent.ACTION_SHUTDOWN,
+            Intent.ACTION_SHUTDOWN
         )
     }
 }

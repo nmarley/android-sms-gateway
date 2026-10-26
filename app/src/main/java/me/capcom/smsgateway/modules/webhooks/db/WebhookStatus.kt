@@ -22,18 +22,12 @@ enum class WebhookStatus(val value: String, val displayName: String) {
     PERMANENTLY_FAILED("permanently_failed", "Permanently Failed");
 
     companion object {
-        fun fromValue(value: String): WebhookStatus? {
-            return values().find { it.value == value }
-        }
+        fun fromValue(value: String): WebhookStatus? = values().find { it.value == value }
 
         fun getDefault(): WebhookStatus = PENDING
 
-        fun isProcessing(status: WebhookStatus): Boolean {
-            return status == PENDING || status == PROCESSING
-        }
+        fun isProcessing(status: WebhookStatus): Boolean = status == PENDING || status == PROCESSING
 
-        fun isTerminal(status: WebhookStatus): Boolean {
-            return status == COMPLETED || status == PERMANENTLY_FAILED
-        }
+        fun isTerminal(status: WebhookStatus): Boolean = status == COMPLETED || status == PERMANENTLY_FAILED
     }
 }

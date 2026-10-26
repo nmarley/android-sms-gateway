@@ -2,10 +2,10 @@ package me.capcom.smsgateway.modules.mms
 
 import android.content.Context
 import com.google.gson.Gson
-import me.capcom.smsgateway.modules.logs.LogsService
-import me.capcom.smsgateway.modules.logs.db.LogEntry
 import java.io.File
 import java.security.MessageDigest
+import me.capcom.smsgateway.modules.logs.LogsService
+import me.capcom.smsgateway.modules.logs.db.LogEntry
 
 /**
  * Persists MMS attachment bytes under the app's private files directory so
@@ -15,29 +15,20 @@ import java.security.MessageDigest
  * Layout: `<filesDir>/mms-in/<sha256(messageId)>/<partId>`
  * Metadata: `<filesDir>/mms-in/<sha256(messageId)>/<partId>.metadata` (JSON)
  */
-class MmsAttachmentStorage(
-    private val context: Context,
-    private val logsSvc: LogsService,
-) {
+class MmsAttachmentStorage(private val context: Context, private val logsSvc: LogsService) {
 
     private val gson = Gson()
 
     private val root: File
         get() = File(context.filesDir, "mms-in").apply { mkdirs() }
 
-    fun store(
-        messageId: String,
-        partId: Long,
-        name: String?,
-        contentType: String,
-        bytes: ByteArray,
-    ): StoredAttachment {
+    fun store(messageId: String, partId: Long, name: String?, contentType: String, bytes: ByteArray): StoredAttachment {
         val dir = messageDir(messageId).apply { mkdirs() }
         val file = File(dir, "$partId")
         file.writeBytes(bytes)
         val meta = AttachmentMetadata(
             name = name,
-            contentType = contentType.ifBlank { DEFAULT_CONTENT_TYPE },
+            contentType = contentType.ifBlank { DEFAULT_CONTENT_TYPE }
         )
         metadataFile(file).writeText(gson.toJson(meta))
         return StoredAttachment(partId, meta.displayName, meta.contentType, file)
@@ -120,20 +111,12 @@ class MmsAttachmentStorage(
 
     private fun metadataFile(file: File): File = File(file.parentFile, file.name + METADATA_SUFFIX)
 
-    private data class AttachmentMetadata(
-        val name: String? = null,
-        val contentType: String = DEFAULT_CONTENT_TYPE,
-    ) {
+    private data class AttachmentMetadata(val name: String? = null, val contentType: String = DEFAULT_CONTENT_TYPE) {
         val displayName: String
             get() = name?.takeIf { it.isNotBlank() } ?: "attachment"
     }
 
-    data class StoredAttachment(
-        val partId: Long,
-        val displayName: String,
-        val contentType: String,
-        val file: File,
-    )
+    data class StoredAttachment(val partId: Long, val displayName: String, val contentType: String, val file: File)
 
     companion object {
         private const val DEFAULT_CONTENT_TYPE = "application/octet-stream"

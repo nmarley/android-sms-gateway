@@ -1,6 +1,5 @@
 package me.capcom.smsgateway.modules.webhooks.db
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.distinctUntilChanged
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils
 import kotlinx.coroutines.Dispatchers
@@ -13,9 +12,7 @@ import org.koin.core.component.inject
  * Repository for webhook queue operations.
  * Provides business logic and a clean API for the rest of the application.
  */
-class WebhookQueueRepository(
-    private val dao: WebhookQueueDao,
-) : KoinComponent {
+class WebhookQueueRepository(private val dao: WebhookQueueDao) : KoinComponent {
     private val payloadStorage: WebhookPayloadStorage by inject()
 
     /**
@@ -28,19 +25,14 @@ class WebhookQueueRepository(
     /**
      * Get queue statistics summary. Full-table aggregate, runs off the main thread.
      */
-    suspend fun getQueueStatistics(): WebhookQueueStatistics {
-        return withContext(Dispatchers.IO) {
-            dao.getQueueStatistics()
-        }
+    suspend fun getQueueStatistics(): WebhookQueueStatistics = withContext(Dispatchers.IO) {
+        dao.getQueueStatistics()
     }
 
     /**
      * Enqueue a new webhook event for processing.
      */
-    suspend fun enqueueWebhook(
-        url: String,
-        payload: String,
-    ): String {
+    suspend fun enqueueWebhook(url: String, payload: String): String {
         val id = NanoIdUtils.randomNanoId()
         val payloadRef = payloadStorage.save(id, payload)
 
@@ -66,23 +58,17 @@ class WebhookQueueRepository(
     /**
      * Check if there are any webhook events due now.
      */
-    suspend fun hasDueWebhooks(): Boolean {
-        return dao.dueWebhooksCount(System.currentTimeMillis()) > 0
-    }
+    suspend fun hasDueWebhooks(): Boolean = dao.dueWebhooksCount(System.currentTimeMillis()) > 0
 
     /**
      * Get the minimum next_attempt time for all pending/failed webhooks.
      */
-    suspend fun getNextAttemptTime(): Long? {
-        return dao.getNextAttemptTime()
-    }
+    suspend fun getNextAttemptTime(): Long? = dao.getNextAttemptTime()
 
     /**
      * Get the next pending webhook events for processing.
      */
-    suspend fun getPendingWebhooks(limit: Int = 10): List<WebhookQueueEntity> {
-        return dao.getPendingWebhooks(limit = limit)
-    }
+    suspend fun getPendingWebhooks(limit: Int = 10): List<WebhookQueueEntity> = dao.getPendingWebhooks(limit = limit)
 
     /**
      * Start processing a webhook by marking it as processing.
@@ -102,12 +88,7 @@ class WebhookQueueRepository(
     /**
      * Mark webhook as failed and schedule retry.
      */
-    suspend fun scheduleRetry(
-        webhookId: String,
-        error: String?,
-        maxRetries: Int = 3,
-        baseDelayMs: Long = 5000L
-    ) {
+    suspend fun scheduleRetry(webhookId: String, error: String?, maxRetries: Int = 3, baseDelayMs: Long = 5000L) {
         val webhook = dao.getById(webhookId)
 
         if (webhook.canRetry(maxRetries)) {
@@ -123,7 +104,7 @@ class WebhookQueueRepository(
             // Max retries exceeded, mark as permanently failed
             permanentlyFailWebhook(
                 webhookId = webhookId,
-                error = error ?: "Max retries exceeded",
+                error = error ?: "Max retries exceeded"
             )
         }
     }
@@ -170,6 +151,5 @@ class WebhookQueueRepository(
 /**
  * Extension function to check if webhook can be retried.
  */
-fun WebhookQueueEntity.canRetry(maxRetries: Int = 3): Boolean {
-    return retryCount < maxRetries && status != WebhookStatus.PERMANENTLY_FAILED
-}
+fun WebhookQueueEntity.canRetry(maxRetries: Int = 3): Boolean =
+    retryCount < maxRetries && status != WebhookStatus.PERMANENTLY_FAILED

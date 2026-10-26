@@ -33,6 +33,7 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import io.ktor.util.date.GMTDate
+import kotlin.concurrent.thread
 import me.capcom.smsgateway.R
 import me.capcom.smsgateway.domain.HealthResponse
 import me.capcom.smsgateway.extensions.configure
@@ -49,7 +50,6 @@ import me.capcom.smsgateway.modules.localserver.routes.WebhooksRoutes
 import me.capcom.smsgateway.modules.notifications.NotificationsService
 import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
-import kotlin.concurrent.thread
 
 class WebService : Service() {
 
@@ -74,15 +74,15 @@ class WebService : Service() {
         embeddedServer(
             Netty,
             port = port,
-            watchPaths = emptyList(),
+            watchPaths = emptyList()
         ) {
             install(Authentication) {
                 basic("auth-basic") {
                     realm = "Access to SMS Gateway"
                     validate { credentials ->
                         when {
-                            credentials.name == username
-                                    && credentials.password == password -> UserIdPrincipal(
+                            credentials.name == username &&
+                                credentials.password == password -> UserIdPrincipal(
                                 credentials.name
                             )
 
@@ -124,14 +124,16 @@ class WebService : Service() {
                     )
                 }
             }
-            install(createApplicationPlugin(name = "DateHeader") {
-                onCall { call ->
-                    call.response.header(
-                        "Date",
-                        GMTDate(null).toHttpDate()
-                    )
+            install(
+                createApplicationPlugin(name = "DateHeader") {
+                    onCall { call ->
+                        call.response.header(
+                            "Date",
+                            GMTDate(null).toHttpDate()
+                        )
+                    }
                 }
-            })
+            )
             routing {
                 get("/health") {
                     val healthResult = healthService.healthCheck()
@@ -264,5 +266,5 @@ class WebService : Service() {
 private val Throwable.description: String
     get() {
         return (localizedMessage ?: message ?: toString()) +
-                (cause?.let { ": " + it.description } ?: "")
+            (cause?.let { ": " + it.description } ?: "")
     }

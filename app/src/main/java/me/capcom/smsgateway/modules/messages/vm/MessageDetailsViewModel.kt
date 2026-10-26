@@ -9,9 +9,7 @@ import kotlinx.coroutines.launch
 import me.capcom.smsgateway.modules.messages.MessagesRepository
 import me.capcom.smsgateway.modules.messages.data.StoredSendRequest
 
-class MessageDetailsViewModel(
-    private val messagesRepo: MessagesRepository
-) : ViewModel() {
+class MessageDetailsViewModel(private val messagesRepo: MessagesRepository) : ViewModel() {
     private val _message = MutableLiveData<StoredSendRequest>()
     val message: LiveData<StoredSendRequest> = _message
 

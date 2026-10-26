@@ -7,16 +7,17 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import java.util.concurrent.TimeUnit
 import me.capcom.smsgateway.modules.device.DeviceService
 import me.capcom.smsgateway.modules.device.MODULE_NAME
 import me.capcom.smsgateway.modules.logs.LogsService
 import me.capcom.smsgateway.modules.logs.db.LogEntry
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import java.util.concurrent.TimeUnit
 
 class KeyRotationWorker(appContext: Context, params: WorkerParameters) :
-    CoroutineWorker(appContext, params), KoinComponent {
+    CoroutineWorker(appContext, params),
+    KoinComponent {
 
     private val deviceService: DeviceService by inject()
     private val logsSvc: LogsService by inject()

@@ -42,10 +42,7 @@ import me.capcom.smsgateway.modules.messages.events.MessageStateChangedEvent
  * DAO state-mutation methods stay public API for now (MessagesService still
  * uses them; visibility/removal is deferred to wave 4 (t4)).
  */
-open class MessageStateService(
-    private val dao: MessagesDao,
-    private val events: EventBus,
-) {
+open class MessageStateService(private val dao: MessagesDao, private val events: EventBus) {
     private val lock = PerMessageLock()
 
     /**
@@ -113,7 +110,7 @@ open class MessageStateService(
             if (row.message.state == ProcessingState.Cancelled ||
                 recipients.any {
                     it.state != target &&
-                            !MessageStateTransitions.canTransition(it.state, target, Scope.Recipient)
+                        !MessageStateTransitions.canTransition(it.state, target, Scope.Recipient)
                 }
             ) {
                 throw IllegalStateException(
@@ -122,7 +119,7 @@ open class MessageStateService(
             }
         } else if (recipients.any {
                 it.state != target &&
-                        !MessageStateTransitions.canTransition(it.state, target, Scope.Recipient)
+                    !MessageStateTransitions.canTransition(it.state, target, Scope.Recipient)
             }
         ) {
             throw IllegalStateException(

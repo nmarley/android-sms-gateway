@@ -1,17 +1,15 @@
 package me.capcom.smsgateway.modules.encryption.providers
 
 import android.util.Base64
-import me.capcom.smsgateway.modules.encryption.EncryptionSettings
 import javax.crypto.Cipher
 import javax.crypto.SecretKey
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.PBEKeySpec
 import javax.crypto.spec.SecretKeySpec
+import me.capcom.smsgateway.modules.encryption.EncryptionSettings
 
-abstract class BasePassphraseEncryptionProvider(
-    protected val settings: EncryptionSettings,
-) : EncryptionProvider {
+abstract class BasePassphraseEncryptionProvider(protected val settings: EncryptionSettings) : EncryptionProvider {
 
     final override suspend fun decrypt(encryptedText: String): String {
         val chunks = encryptedText.split('$')
@@ -53,12 +51,7 @@ abstract class BasePassphraseEncryptionProvider(
 
     protected abstract fun parseChunks(chunks: List<String>): Parsed
 
-    protected class Parsed(
-        val params: Map<String, String>,
-        val iv: ByteArray,
-        val salt: ByteArray,
-        val ct: String,
-    )
+    protected class Parsed(val params: Map<String, String>, val iv: ByteArray, val salt: ByteArray, val ct: String)
 
     private fun decryptText(encryptedText: String, secretKey: SecretKey, iv: ByteArray): String {
         val ivSpec = IvParameterSpec(iv)
@@ -76,13 +69,9 @@ abstract class BasePassphraseEncryptionProvider(
         return cipher.doFinal(plainText.toByteArray())
     }
 
-    protected fun decode(input: String): ByteArray {
-        return Base64.decode(input, Base64.DEFAULT)
-    }
+    protected fun decode(input: String): ByteArray = Base64.decode(input, Base64.DEFAULT)
 
-    protected fun encode(input: ByteArray): String {
-        return Base64.encodeToString(input, Base64.NO_WRAP)
-    }
+    protected fun encode(input: ByteArray): String = Base64.encodeToString(input, Base64.NO_WRAP)
 
     private fun generateSecretKeyFromPassphrase(
         passphrase: CharArray,
@@ -96,11 +85,9 @@ abstract class BasePassphraseEncryptionProvider(
         return SecretKeySpec(keyBytes, "AES")
     }
 
-    protected fun parseParams(params: String): Map<String, String> {
-        return params.split(',')
-            .map { it.split('=', limit = 2) }
-            .associate { it[0] to it[1] }
-    }
+    protected fun parseParams(params: String): Map<String, String> = params.split(',')
+        .map { it.split('=', limit = 2) }
+        .associate { it[0] to it[1] }
 
     protected fun paramsString(): String = "i=$ITERATION_COUNT"
 

@@ -20,11 +20,7 @@ class WebhooksListFragment : Fragment() {
     private val webhookService: WebHooksService by inject()
     private val adapter: WebhookAdapter = WebhookAdapter()
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentWebhooksListBinding.inflate(inflater, container, false)
         return binding.root
     }

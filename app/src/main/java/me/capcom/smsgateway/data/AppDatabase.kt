@@ -14,6 +14,8 @@ import me.capcom.smsgateway.data.entities.RecipientState
 import me.capcom.smsgateway.data.entities.Token
 import me.capcom.smsgateway.modules.device.db.DeviceKey
 import me.capcom.smsgateway.modules.device.db.DeviceKeysDao
+import me.capcom.smsgateway.modules.gateway.inbox.InboxUploadDao
+import me.capcom.smsgateway.modules.gateway.inbox.InboxUploadEntity
 import me.capcom.smsgateway.modules.incoming.db.IncomingMessage
 import me.capcom.smsgateway.modules.incoming.db.IncomingMessagesDao
 import me.capcom.smsgateway.modules.logs.db.LogEntriesDao
@@ -22,8 +24,6 @@ import me.capcom.smsgateway.modules.webhooks.db.WebHook
 import me.capcom.smsgateway.modules.webhooks.db.WebHooksDao
 import me.capcom.smsgateway.modules.webhooks.db.WebhookQueueDao
 import me.capcom.smsgateway.modules.webhooks.db.WebhookQueueEntity
-import me.capcom.smsgateway.modules.gateway.inbox.InboxUploadDao
-import me.capcom.smsgateway.modules.gateway.inbox.InboxUploadEntity
 
 @Database(
     entities = [
@@ -37,7 +37,7 @@ import me.capcom.smsgateway.modules.gateway.inbox.InboxUploadEntity
         LogEntry::class,
         Token::class,
         IncomingMessage::class,
-        DeviceKey::class,
+        DeviceKey::class
     ],
     version = 25,
     autoMigrations = [
@@ -64,10 +64,9 @@ import me.capcom.smsgateway.modules.gateway.inbox.InboxUploadEntity
 //        AutoMigration(from = 21, to = 22), // manual migration
         AutoMigration(from = 22, to = 23),
         AutoMigration(from = 23, to = 24),
-        AutoMigration(from = 24, to = 25),
+        AutoMigration(from = 24, to = 25)
     ]
 )
-
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun messagesDao(): MessagesDao
@@ -80,19 +79,17 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun deviceKeysDao(): DeviceKeysDao
 
     companion object {
-        fun getDatabase(context: android.content.Context): AppDatabase {
-            return Room.databaseBuilder(
-                context,
-                AppDatabase::class.java,
-                "gateway"
+        fun getDatabase(context: android.content.Context): AppDatabase = Room.databaseBuilder(
+            context,
+            AppDatabase::class.java,
+            "gateway"
+        )
+            .addMigrations(
+                MIGRATION_7_8,
+                MIGRATION_13_14,
+                MIGRATION_21_22
             )
-                .addMigrations(
-                    MIGRATION_7_8,
-                    MIGRATION_13_14,
-                    MIGRATION_21_22,
-                )
-                .allowMainThreadQueries()
-                .build()
-        }
+            .allowMainThreadQueries()
+            .build()
     }
 }

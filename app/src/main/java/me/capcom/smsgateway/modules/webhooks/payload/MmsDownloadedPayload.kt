@@ -10,13 +10,7 @@ class MmsDownloadedPayload(
     val body: String?,
     val subject: String?,
     val attachments: List<Attachment>,
-    val receivedAt: Date,
+    val receivedAt: Date
 ) : MessageEventPayload(messageId, sender, recipient, simNumber, sender) {
-    class Attachment(
-        val partId: Long,
-        val contentType: String,
-        val name: String?,
-        val size: Long?,
-        val data: String?,
-    )
+    class Attachment(val partId: Long, val contentType: String, val name: String?, val size: Long?, val data: String?)
 }

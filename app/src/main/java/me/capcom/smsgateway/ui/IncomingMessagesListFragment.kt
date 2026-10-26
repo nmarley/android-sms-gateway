@@ -22,11 +22,7 @@ class IncomingMessagesListFragment : Fragment() {
     private var _binding: FragmentIncomingMessagesListBinding? = null
     private val binding get() = _binding!!
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentIncomingMessagesListBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -78,12 +74,28 @@ class IncomingMessagesListFragment : Fragment() {
 
         viewModel.filter.observe(viewLifecycleOwner) { type ->
             when (type) {
-                null -> { if (!binding.filterAll.isChecked) binding.filterAll.isChecked = true }
-                IncomingMessageType.SMS -> { if (!binding.filterSms.isChecked) binding.filterSms.isChecked = true }
-                IncomingMessageType.DATA_SMS -> { if (!binding.filterDataSms.isChecked) binding.filterDataSms.isChecked = true }
+                null -> {
+                    if (!binding.filterAll.isChecked) binding.filterAll.isChecked = true
+                }
+                IncomingMessageType.SMS -> {
+                    if (!binding.filterSms.isChecked) binding.filterSms.isChecked = true
+                }
+                IncomingMessageType.DATA_SMS -> {
+                    if (!binding.filterDataSms.isChecked) {
+                        binding.filterDataSms.isChecked =
+                            true
+                    }
+                }
                 IncomingMessageType.MMS,
-                IncomingMessageType.MMS_DOWNLOADED -> { if (!binding.filterMms.isChecked) binding.filterMms.isChecked = true }
-                else -> { if (!binding.filterAll.isChecked) binding.filterAll.isChecked = true }
+                IncomingMessageType.MMS_DOWNLOADED -> {
+                    if (!binding.filterMms.isChecked) {
+                        binding.filterMms.isChecked =
+                            true
+                    }
+                }
+                else -> {
+                    if (!binding.filterAll.isChecked) binding.filterAll.isChecked = true
+                }
             }
         }
 

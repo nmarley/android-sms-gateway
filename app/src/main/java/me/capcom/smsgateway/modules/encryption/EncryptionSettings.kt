@@ -4,9 +4,7 @@ import me.capcom.smsgateway.modules.settings.Importer
 import me.capcom.smsgateway.modules.settings.KeyValueStorage
 import me.capcom.smsgateway.modules.settings.get
 
-class EncryptionSettings(
-    private val storage: KeyValueStorage,
-) : Importer {
+class EncryptionSettings(private val storage: KeyValueStorage) : Importer {
     val passphrase: String?
         get() = storage.get<String>(PASSPHRASE)
 
@@ -40,18 +38,16 @@ class EncryptionSettings(
         private const val VERSION = "version"
     }
 
-    override fun import(data: Map<String, *>): Boolean {
-        return data.map {
-            when (it.key) {
-                PASSPHRASE -> {
-                    val newValue = it.value?.toString()
-                    val changed = passphrase != newValue
-                    storage.set(it.key, newValue)
-                    changed
-                }
-
-                else -> false
+    override fun import(data: Map<String, *>): Boolean = data.map {
+        when (it.key) {
+            PASSPHRASE -> {
+                val newValue = it.value?.toString()
+                val changed = passphrase != newValue
+                storage.set(it.key, newValue)
+                changed
             }
-        }.any { it }
-    }
+
+            else -> false
+        }
+    }.any { it }
 }

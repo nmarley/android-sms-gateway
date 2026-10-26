@@ -119,10 +119,7 @@ class HomeFragment : Fragment() {
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -250,7 +247,6 @@ class HomeFragment : Fragment() {
                             )
                         )
                     )
-
                 } ?: getString(R.string.not_available)
 
                 binding.textPublicIP.text = event.publicIP?.let {
@@ -279,8 +275,11 @@ class HomeFragment : Fragment() {
         stateLiveData.observe(viewLifecycleOwner) { isRunning ->
             binding.buttonStart.apply {
                 text = getString(
-                    if (isRunning) R.string.button_stop_service
-                    else R.string.button_start_service
+                    if (isRunning) {
+                        R.string.button_stop_service
+                    } else {
+                        R.string.button_start_service
+                    }
                 )
                 backgroundTintList = ColorStateList.valueOf(
                     ContextCompat.getColor(
@@ -318,9 +317,10 @@ class HomeFragment : Fragment() {
                         Context.CLIPBOARD_SERVICE
                     ) as ClipboardManager
                     clipboard.setPrimaryClip(ClipData.newPlainText("", innerText))
-                    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2)
+                    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
                         Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT)
                             .show()
+                    }
                 }
             }
             builder.setSpan(
@@ -344,8 +344,8 @@ class HomeFragment : Fragment() {
 
     private fun actionStart(start: Boolean) {
         if (start) {
-            if (gatewaySettings.enabled
-                && gatewaySettings.registrationInfo == null
+            if (gatewaySettings.enabled &&
+                gatewaySettings.registrationInfo == null
             ) {
                 cloudFirstStart()
                 return
@@ -378,7 +378,7 @@ class HomeFragment : Fragment() {
                 Manifest.permission.RECEIVE_SMS,
                 Manifest.permission.SEND_SMS,
                 Manifest.permission.RECEIVE_MMS,
-                Manifest.permission.READ_PHONE_NUMBERS.takeIf { Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU },
+                Manifest.permission.READ_PHONE_NUMBERS.takeIf { Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU }
             )
                 .filterNotNull()
                 .filter {
@@ -454,7 +454,6 @@ class HomeFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance() =
-            HomeFragment()
+        fun newInstance() = HomeFragment()
     }
 }

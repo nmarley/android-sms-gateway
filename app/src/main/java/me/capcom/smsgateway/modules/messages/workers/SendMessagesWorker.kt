@@ -10,6 +10,8 @@ import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import androidx.work.WorkRequest
 import androidx.work.WorkerParameters
+import java.util.concurrent.TimeUnit
+import kotlin.math.max
 import me.capcom.smsgateway.R
 import me.capcom.smsgateway.modules.logs.LogsService
 import me.capcom.smsgateway.modules.logs.db.LogEntry
@@ -17,11 +19,10 @@ import me.capcom.smsgateway.modules.messages.MessagesService
 import me.capcom.smsgateway.modules.notifications.NotificationsService
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import java.util.concurrent.TimeUnit
-import kotlin.math.max
 
 class SendMessagesWorker(appContext: Context, params: WorkerParameters) :
-    CoroutineWorker(appContext, params), KoinComponent {
+    CoroutineWorker(appContext, params),
+    KoinComponent {
 
     private val logsService: LogsService by inject()
     private val messagesSvc: MessagesService by inject()
@@ -57,9 +58,7 @@ class SendMessagesWorker(appContext: Context, params: WorkerParameters) :
         }
     }
 
-    override suspend fun getForegroundInfo(): ForegroundInfo {
-        return createForegroundInfo()
-    }
+    override suspend fun getForegroundInfo(): ForegroundInfo = createForegroundInfo()
 
     // Creates an instance of ForegroundInfo which can be used to update the
     // ongoing notification.

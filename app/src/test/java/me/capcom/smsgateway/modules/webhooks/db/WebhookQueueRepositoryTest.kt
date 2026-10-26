@@ -23,10 +23,7 @@ class WebhookQueueRepositoryTest {
         var lastFilteredStatus: String? = null
         var lastFilteredLimit: Int = 0
 
-        override fun selectLastFiltered(
-            limit: Int,
-            status: String?
-        ): LiveData<List<WebhookQueueEntity>> {
+        override fun selectLastFiltered(limit: Int, status: String?): LiveData<List<WebhookQueueEntity>> {
             lastFilteredStatus = status
             lastFilteredLimit = limit
             val filtered = if (status == null) allEntries else allEntries.filter { it.status.value == status }
@@ -34,18 +31,13 @@ class WebhookQueueRepositoryTest {
             return filteredLiveData
         }
 
-        override suspend fun getQueueStatistics(): WebhookQueueStatistics {
-            return statisticsResult
-        }
+        override suspend fun getQueueStatistics(): WebhookQueueStatistics = statisticsResult
 
         override suspend fun insertWebhook(webhook: WebhookQueueEntity) = TODO()
         override suspend fun getById(id: String): WebhookQueueEntity = TODO()
         override suspend fun dueWebhooksCount(currentTime: Long): Long = TODO()
         override suspend fun getNextAttemptTime(): Long? = TODO()
-        override suspend fun getPendingWebhooks(
-            currentTime: Long,
-            limit: Int
-        ): List<WebhookQueueEntity> = TODO()
+        override suspend fun getPendingWebhooks(currentTime: Long, limit: Int): List<WebhookQueueEntity> = TODO()
 
         override suspend fun markAsProcessing(id: String) = TODO()
         override suspend fun markAsFailed(id: String, nextAttempt: Long, error: String?) = TODO()

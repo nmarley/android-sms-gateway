@@ -2,6 +2,8 @@ package me.capcom.smsgateway.modules.device
 
 import android.content.Context
 import android.util.Base64
+import java.security.PrivateKey
+import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -15,15 +17,13 @@ import me.capcom.smsgateway.modules.device.workers.KeyRotationWorker
 import me.capcom.smsgateway.modules.events.EventBus
 import me.capcom.smsgateway.modules.logs.LogsService
 import me.capcom.smsgateway.modules.logs.db.LogEntry
-import java.security.PrivateKey
-import java.util.concurrent.ConcurrentHashMap
 
 class DeviceService(
     private val keyStore: KeyStore,
     private val keys: DeviceKeysDao,
     private val logsSvc: LogsService,
     private val settings: DeviceSettings,
-    private val events: EventBus,
+    private val events: EventBus
 ) {
     private val rotationMutex = Mutex()
 
@@ -60,7 +60,7 @@ class DeviceService(
                     LogEntry.Priority.WARN,
                     MODULE_NAME,
                     "Failed to rotate device key",
-                    e,
+                    e
                 )
                 return@withLock null
             }
@@ -81,10 +81,8 @@ class DeviceService(
      *
      * Returns the newly created [DeviceKey]. Throws on failure.
      */
-    suspend fun rotateKey(): DeviceKey {
-        return rotationMutex.withLock {
-            rotateKeyLocked()
-        }
+    suspend fun rotateKey(): DeviceKey = rotationMutex.withLock {
+        rotateKeyLocked()
     }
 
     fun start(context: Context) {
@@ -138,7 +136,7 @@ class DeviceService(
         val generated = keyStore.generateKeyPair(alias)
         val entity = DeviceKey(
             keyVersion = nextVersion,
-            publicKeyBase64 = generated.publicKeyBase64,
+            publicKeyBase64 = generated.publicKeyBase64
         )
 
         // Persist the new key first so there is never a window with no
@@ -176,7 +174,7 @@ class DeviceService(
                 LogEntry.Priority.WARN,
                 MODULE_NAME,
                 "Failed to clean up old keys",
-                e,
+                e
             )
         }
         // A new version is active and old ones were retired: never serve stale
@@ -278,7 +276,7 @@ class DeviceService(
                     LogEntry.Priority.WARN,
                     MODULE_NAME,
                     "Failed to delete keystore entry for key ${key.keyVersion}",
-                    e,
+                    e
                 )
             }
             // Retired and past retention: drop the cached private key so it

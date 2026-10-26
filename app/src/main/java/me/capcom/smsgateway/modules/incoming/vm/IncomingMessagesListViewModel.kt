@@ -11,13 +11,11 @@ import me.capcom.smsgateway.modules.incoming.db.IncomingMessageTotals
 import me.capcom.smsgateway.modules.incoming.db.IncomingMessageType
 import me.capcom.smsgateway.modules.incoming.repositories.IncomingMessagesRepository
 
-class IncomingMessagesListViewModel(
-    private val repository: IncomingMessagesRepository,
-) : ViewModel() {
+class IncomingMessagesListViewModel(private val repository: IncomingMessagesRepository) : ViewModel() {
     val totals: LiveData<IncomingMessageTotals> = repository.totals
 
-    private val _queryParams = MutableLiveData<Pair<Int, IncomingMessageType?>>(chunkSize to null)
-    val filter: LiveData<IncomingMessageType?> = _queryParams.map { it.second }
+    private val queryParams = MutableLiveData<Pair<Int, IncomingMessageType?>>(CHUNK_SIZE to null)
+    val filter: LiveData<IncomingMessageType?> = queryParams.map { it.second }
 
     private val _messages = MediatorLiveData<List<IncomingMessage>>()
     val messages: LiveData<List<IncomingMessage>> = _messages
@@ -26,32 +24,34 @@ class IncomingMessagesListViewModel(
     private var hasMore = true
 
     init {
-        _messages.addSource(_queryParams.switchMap { (l, type) ->
-            repository.selectLast(l, type)
-        }) {
+        _messages.addSource(
+            queryParams.switchMap { (l, type) ->
+                repository.selectLast(l, type)
+            }
+        ) {
             _messages.value = it
-            hasMore = it.size >= (_queryParams.value?.first ?: chunkSize)
+            hasMore = it.size >= (queryParams.value?.first ?: CHUNK_SIZE)
             isLoading = false
         }
     }
 
     fun loadMore(index: Int = 0) {
-        val currentLimit = _queryParams.value?.first ?: 0
-        if (currentLimit >= index + chunkSize || isLoading || !hasMore) return
+        val currentLimit = queryParams.value?.first ?: 0
+        if (currentLimit >= index + CHUNK_SIZE || isLoading || !hasMore) return
 
         isLoading = true
-        _queryParams.value = (currentLimit + chunkSize) to _queryParams.value?.second
+        queryParams.value = (currentLimit + CHUNK_SIZE) to queryParams.value?.second
     }
 
     fun setFilter(type: IncomingMessageType?) {
-        val current = _queryParams.value
+        val current = queryParams.value
         if (current?.second == type) return
 
-        _queryParams.value = chunkSize to type
+        queryParams.value = CHUNK_SIZE to type
         hasMore = true
     }
 
     companion object {
-        private const val chunkSize = 50
+        private const val CHUNK_SIZE = 50
     }
 }

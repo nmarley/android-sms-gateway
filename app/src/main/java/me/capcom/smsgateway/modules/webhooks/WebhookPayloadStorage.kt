@@ -3,9 +3,7 @@ package me.capcom.smsgateway.modules.webhooks
 import android.content.Context
 import java.io.File
 
-class WebhookPayloadStorage(
-    context: Context,
-) {
+class WebhookPayloadStorage(context: Context) {
     private val payloadDir = File(context.filesDir, PAYLOAD_DIR_NAME).apply {
         if (!exists()) {
             mkdirs()

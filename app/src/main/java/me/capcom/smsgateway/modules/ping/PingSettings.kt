@@ -5,9 +5,9 @@ import me.capcom.smsgateway.modules.settings.Importer
 import me.capcom.smsgateway.modules.settings.KeyValueStorage
 import me.capcom.smsgateway.modules.settings.get
 
-class PingSettings(
-    private val storage: KeyValueStorage,
-) : Exporter, Importer {
+class PingSettings(private val storage: KeyValueStorage) :
+    Exporter,
+    Importer {
     val enabled: Boolean
         get() = intervalSeconds != null
 
@@ -19,29 +19,25 @@ class PingSettings(
         private const val INTERVAL_SECONDS = "interval_seconds"
     }
 
-    override fun export(): Map<String, *> {
-        return mapOf(
-            INTERVAL_SECONDS to intervalSeconds,
-        )
-    }
+    override fun export(): Map<String, *> = mapOf(
+        INTERVAL_SECONDS to intervalSeconds
+    )
 
-    override fun import(data: Map<String, *>): Boolean {
-        return data.map { (key, value) ->
-            when (key) {
-                INTERVAL_SECONDS -> {
-                    val newValue = value?.toString()?.toFloat()?.toInt()?.takeIf { it > 0 }
-                    val changed = this.intervalSeconds != newValue
+    override fun import(data: Map<String, *>): Boolean = data.map { (key, value) ->
+        when (key) {
+            INTERVAL_SECONDS -> {
+                val newValue = value?.toString()?.toFloat()?.toInt()?.takeIf { it > 0 }
+                val changed = this.intervalSeconds != newValue
 
-                    storage.set(
-                        key,
-                        newValue?.toString()
-                    )
+                storage.set(
+                    key,
+                    newValue?.toString()
+                )
 
-                    changed
-                }
-
-                else -> false
+                changed
             }
-        }.any { it }
-    }
+
+            else -> false
+        }
+    }.any { it }
 }

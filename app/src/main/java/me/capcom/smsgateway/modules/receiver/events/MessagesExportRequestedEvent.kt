@@ -2,17 +2,17 @@ package me.capcom.smsgateway.modules.receiver.events
 
 import com.google.gson.GsonBuilder
 import com.google.gson.annotations.SerializedName
+import java.util.Date
 import me.capcom.smsgateway.domain.WebhookDelivery
 import me.capcom.smsgateway.extensions.configure
 import me.capcom.smsgateway.modules.events.AppEvent
 import me.capcom.smsgateway.modules.incoming.db.IncomingMessageType
-import java.util.Date
 
 class MessagesExportRequestedEvent(
     val since: Date,
     val until: Date,
     val messageTypes: Set<IncomingMessageType>,
-    val webhookDelivery: WebhookDelivery,
+    val webhookDelivery: WebhookDelivery
 ) : AppEvent(NAME) {
     data class Payload(
         @SerializedName("since")
@@ -25,7 +25,7 @@ class MessagesExportRequestedEvent(
         @Deprecated("Replaced with webhookDelivery")
         val triggerWebhooks: Boolean? = null,
         @SerializedName("webhookDelivery")
-        val webhookDelivery: WebhookDelivery? = null,
+        val webhookDelivery: WebhookDelivery? = null
     )
 
     companion object {
@@ -48,7 +48,7 @@ class MessagesExportRequestedEvent(
                 messageTypes = messageTypes ?: setOf(IncomingMessageType.SMS),
                 webhookDelivery = obj.webhookDelivery
                     ?: (if (obj.triggerWebhooks == false) WebhookDelivery.Disabled else null)
-                    ?: WebhookDelivery.Individual,
+                    ?: WebhookDelivery.Individual
             )
         }
     }

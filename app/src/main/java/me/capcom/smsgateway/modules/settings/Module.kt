@@ -17,7 +17,6 @@ import me.capcom.smsgateway.modules.webhooks.WebhooksSettings
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
-
 val settingsModule = module {
     singleOf(::SettingsService)
     factory { PreferenceManager.getDefaultSharedPreferences(get()) }

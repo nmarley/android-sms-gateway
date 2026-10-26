@@ -3,6 +3,7 @@ package me.capcom.smsgateway.modules.gateway.inbox
 import android.content.Context
 import android.util.Base64
 import com.google.gson.GsonBuilder
+import java.util.Date
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -16,7 +17,6 @@ import me.capcom.smsgateway.modules.logs.db.LogEntry
 import me.capcom.smsgateway.modules.receiver.data.InboxMessage
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import java.util.Date
 
 class InboxUploadService : KoinComponent {
     private val encryptionService: EncryptionService by inject()
@@ -32,7 +32,7 @@ class InboxUploadService : KoinComponent {
         sender: String,
         recipient: String?,
         simNumber: Int?,
-        date: Date,
+        date: Date
     ) {
         scope.launch {
             try {
@@ -45,7 +45,7 @@ class InboxUploadService : KoinComponent {
                     simNumber = simNumber,
                     messageCreatedAt = date.time,
                     contentEncrypted = mapped.contentEncrypted,
-                    attachmentsEncrypted = mapped.attachmentsEncrypted,
+                    attachmentsEncrypted = mapped.attachmentsEncrypted
                 )
                 InboxUploadWorker.start(context)
             } catch (e: Exception) {
@@ -55,50 +55,48 @@ class InboxUploadService : KoinComponent {
                     "Failed to prepare inbox upload",
                     mapOf(
                         "error" to (e.message ?: e.toString()),
-                        "stackTrace" to e.stackTraceToString(),
+                        "stackTrace" to e.stackTraceToString()
                     )
                 )
             }
         }
     }
 
-    private suspend fun mapAndEncrypt(message: InboxMessage): Mapped? {
-        return when (message) {
-            is InboxMessage.Text -> Mapped(
-                messageId = message.hashCode().toUInt().toString(16),
-                type = InboxMessageType.SMS,
-                contentEncrypted = encryptionService.encrypt(message.text),
-                attachmentsEncrypted = null,
-            )
+    private suspend fun mapAndEncrypt(message: InboxMessage): Mapped? = when (message) {
+        is InboxMessage.Text -> Mapped(
+            messageId = message.hashCode().toUInt().toString(16),
+            type = InboxMessageType.SMS,
+            contentEncrypted = encryptionService.encrypt(message.text),
+            attachmentsEncrypted = null
+        )
 
-            is InboxMessage.Data -> Mapped(
-                messageId = message.hashCode().toUInt().toString(16),
-                type = InboxMessageType.DATA_SMS,
-                contentEncrypted = encryptionService.encrypt(
-                    Base64.encodeToString(message.data ?: ByteArray(0), Base64.NO_WRAP),
-                ),
-                attachmentsEncrypted = null,
-            )
+        is InboxMessage.Data -> Mapped(
+            messageId = message.hashCode().toUInt().toString(16),
+            type = InboxMessageType.DATA_SMS,
+            contentEncrypted = encryptionService.encrypt(
+                Base64.encodeToString(message.data ?: ByteArray(0), Base64.NO_WRAP)
+            ),
+            attachmentsEncrypted = null
+        )
 
-            is InboxMessage.MmsHeaders -> null
+        is InboxMessage.MmsHeaders -> null
 
-            is InboxMessage.MMS -> {
-                val attachments = message.attachments.map {
-                    EncryptedAttachment(
-                        partId = it.partId,
-                        contentType = it.contentType,
-                        name = encryptionService.encrypt(it.name ?: ""),
-                        size = it.size,
-                        data = encryptionService.encrypt(it.data ?: ""),
-                    )
-                }
-                Mapped(
-                    messageId = message.messageId,
-                    type = InboxMessageType.MMS_DOWNLOADED,
-                    contentEncrypted = encryptionService.encrypt(message.body ?: ""),
-                    attachmentsEncrypted = gson.toJson(attachments),
+        is InboxMessage.MMS -> {
+            val attachments = message.attachments.map {
+                EncryptedAttachment(
+                    partId = it.partId,
+                    contentType = it.contentType,
+                    name = encryptionService.encrypt(it.name ?: ""),
+                    size = it.size,
+                    data = encryptionService.encrypt(it.data ?: "")
                 )
             }
+            Mapped(
+                messageId = message.messageId,
+                type = InboxMessageType.MMS_DOWNLOADED,
+                contentEncrypted = encryptionService.encrypt(message.body ?: ""),
+                attachmentsEncrypted = gson.toJson(attachments)
+            )
         }
     }
 
@@ -106,6 +104,6 @@ class InboxUploadService : KoinComponent {
         val messageId: String,
         val type: String,
         val contentEncrypted: String,
-        val attachmentsEncrypted: String?,
+        val attachmentsEncrypted: String?
     )
 }

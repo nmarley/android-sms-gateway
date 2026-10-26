@@ -17,9 +17,7 @@ interface InboxUploadDao {
         LIMIT :limit
     """
     )
-    suspend fun getPending(
-        limit: Int = 100,
-    ): List<InboxUploadEntity>
+    suspend fun getPending(limit: Int = 100): List<InboxUploadEntity>
 
     @Query("DELETE FROM gateway__inbox_upload WHERE id IN (:ids)")
     suspend fun delete(ids: List<Long>)

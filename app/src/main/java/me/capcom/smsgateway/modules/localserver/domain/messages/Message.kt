@@ -1,7 +1,7 @@
 package me.capcom.smsgateway.modules.localserver.domain.messages
 
-import me.capcom.smsgateway.domain.ProcessingState
 import java.util.Date
+import me.capcom.smsgateway.domain.ProcessingState
 
 open class Message(
     val id: String,
@@ -16,11 +16,7 @@ open class Message(
     val mmsMessage: MmsMessage?,
     val hashedMessage: HashedMessage?,
     val recipients: List<Recipient>,
-    val states: Map<ProcessingState, Date>,
+    val states: Map<ProcessingState, Date>
 ) {
-    data class Recipient(
-        val phoneNumber: String,
-        val state: ProcessingState,
-        val error: String?,
-    )
+    data class Recipient(val phoneNumber: String, val state: ProcessingState, val error: String?)
 }

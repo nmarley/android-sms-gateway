@@ -11,5 +11,5 @@ class MmsReceivedPayload(
     val subject: String?,
     val size: Long,
     val contentClass: String?,
-    val receivedAt: Date,
+    val receivedAt: Date
 ) : MessageEventPayload(messageId, sender, recipient, simNumber, sender)

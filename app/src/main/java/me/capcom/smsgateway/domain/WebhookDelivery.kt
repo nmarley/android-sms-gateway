@@ -10,5 +10,5 @@ enum class WebhookDelivery {
     Individual,
 
     @SerializedName("Batch")
-    Batch,
+    Batch
 }

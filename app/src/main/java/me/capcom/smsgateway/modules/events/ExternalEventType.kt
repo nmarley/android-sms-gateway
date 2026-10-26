@@ -16,5 +16,5 @@ enum class ExternalEventType {
     SettingsUpdated,
 
     @SerializedName("MessageCancelled")
-    MessageCancelled,
+    MessageCancelled
 }

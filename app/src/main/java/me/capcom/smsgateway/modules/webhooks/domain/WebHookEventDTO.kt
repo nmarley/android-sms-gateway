@@ -5,5 +5,5 @@ data class WebHookEventDTO(
     val webhookId: String,
     val event: WebHookEvent,
     val deviceId: String,
-    val payload: Any,
+    val payload: Any
 )

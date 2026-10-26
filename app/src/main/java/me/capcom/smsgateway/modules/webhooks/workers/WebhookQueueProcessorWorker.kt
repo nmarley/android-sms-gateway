@@ -23,6 +23,8 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.userAgent
 import io.ktor.serialization.gson.gson
+import java.util.concurrent.TimeUnit
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
@@ -43,18 +45,15 @@ import me.capcom.smsgateway.modules.webhooks.plugins.PayloadSingingPlugin
 import org.json.JSONException
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import java.util.concurrent.TimeUnit
-import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * Worker that processes webhook events from a persistent queue.
  * This replaces the per-event worker approach with a single persistent worker
  * that handles multiple events with priority-based processing.
  */
-class WebhookQueueProcessorWorker(
-    appContext: Context,
-    params: WorkerParameters
-) : CoroutineWorker(appContext, params), KoinComponent {
+class WebhookQueueProcessorWorker(appContext: Context, params: WorkerParameters) :
+    CoroutineWorker(appContext, params),
+    KoinComponent {
 
     private val notificationsSvc: NotificationsService by inject()
     private val logsSvc: LogsService by inject()
@@ -78,7 +77,7 @@ class WebhookQueueProcessorWorker(
             context: Context,
             internetRequired: Boolean = false,
             initialDelayMs: Long = 0,
-            policy: ExistingWorkPolicy = ExistingWorkPolicy.REPLACE,
+            policy: ExistingWorkPolicy = ExistingWorkPolicy.REPLACE
         ) {
             val workRequest = OneTimeWorkRequestBuilder<WebhookQueueProcessorWorker>()
                 .setBackoffCriteria(
@@ -122,7 +121,7 @@ class WebhookQueueProcessorWorker(
                 module = NAME,
                 message = "Starting webhook queue processing",
                 context = mapOf(
-                    "attempt" to runAttemptCount,
+                    "attempt" to runAttemptCount
                 )
             )
 
@@ -148,7 +147,7 @@ class WebhookQueueProcessorWorker(
                     module = NAME,
                     message = "Queue iteration completed",
                     context = mapOf(
-                        "processedCount" to processedCount,
+                        "processedCount" to processedCount
                     )
                 )
 
@@ -177,7 +176,7 @@ class WebhookQueueProcessorWorker(
                         context = applicationContext,
                         internetRequired = settings.internetRequired,
                         initialDelayMs = delayMs,
-                        policy = ExistingWorkPolicy.APPEND_OR_REPLACE,
+                        policy = ExistingWorkPolicy.APPEND_OR_REPLACE
                     )
                 }
             }
@@ -187,7 +186,7 @@ class WebhookQueueProcessorWorker(
                 module = NAME,
                 message = "Webhook queue processing completed",
                 context = mapOf(
-                    "attempt" to runAttemptCount,
+                    "attempt" to runAttemptCount
                 )
             )
 
@@ -223,14 +222,13 @@ class WebhookQueueProcessorWorker(
             webhookRepository.recoverStuckWebhooks()
 
             totalProcessed = processBatch(BATCH_SIZE)
-
         } catch (e: Exception) {
             logsSvc.insert(
                 priority = LogEntry.Priority.ERROR,
                 module = NAME,
                 message = "Error during webhook queue processing: ${e.message}",
                 context = mapOf(
-                    "error" to e.toString(),
+                    "error" to e.toString()
                 )
             )
             throw e
@@ -242,166 +240,162 @@ class WebhookQueueProcessorWorker(
     /**
      * Process a batch of webhooks for a specific priority.
      */
-    private suspend fun processBatch(batchSize: Int): Int =
-        withContext(Dispatchers.IO) {
-            try {
-                // Get pending webhooks for this priority
-                val webhooks = webhookRepository.getPendingWebhooks(limit = batchSize)
+    private suspend fun processBatch(batchSize: Int): Int = withContext(Dispatchers.IO) {
+        try {
+            // Get pending webhooks for this priority
+            val webhooks = webhookRepository.getPendingWebhooks(limit = batchSize)
 
-                if (webhooks.isEmpty()) {
-                    return@withContext 0
-                }
+            if (webhooks.isEmpty()) {
+                return@withContext 0
+            }
 
-                logsSvc.insert(
-                    priority = LogEntry.Priority.DEBUG,
-                    module = NAME,
-                    message = "Processing ${webhooks.size} webhooks",
-                    context = mapOf(
-                        "count" to webhooks.size,
-                        "webhookIds" to webhooks.map { it.url }
-                    )
+            logsSvc.insert(
+                priority = LogEntry.Priority.DEBUG,
+                module = NAME,
+                message = "Processing ${webhooks.size} webhooks",
+                context = mapOf(
+                    "count" to webhooks.size,
+                    "webhookIds" to webhooks.map { it.url }
                 )
+            )
 
-                var processedCount = 0
-                var failedCount = 0
+            var processedCount = 0
+            var failedCount = 0
 
-                for (webhook in webhooks) {
-                    withContext(NonCancellable) {
-                        try {
-                            // Start processing this webhook
-                            webhookRepository.startProcessing(webhook.id)
+            for (webhook in webhooks) {
+                withContext(NonCancellable) {
+                    try {
+                        // Start processing this webhook
+                        webhookRepository.startProcessing(webhook.id)
 
-                            // Send the webhook
-                            val success = sendWebhook(webhook)
+                        // Send the webhook
+                        val success = sendWebhook(webhook)
 
-                            if (success) {
-                                // Mark as completed
-                                webhookRepository.completeWebhook(webhook.id)
-                                processedCount++
-                            } else {
-                                // Schedule retry
-                                handleWebhookFailure(webhook.id, "Processing failed")
-                                failedCount++
-                            }
-                        } catch (e: Exception) {
-                            logsSvc.insert(
-                                priority = LogEntry.Priority.ERROR,
-                                module = NAME,
-                                message = "Error processing webhook ${webhook.id}: ${e.message}",
-                                context = mapOf(
-                                    "webhookId" to webhook.id,
-                                    "error" to e.toString()
-                                )
-                            )
-                            handleWebhookFailure(webhook.id, e.message)
+                        if (success) {
+                            // Mark as completed
+                            webhookRepository.completeWebhook(webhook.id)
+                            processedCount++
+                        } else {
+                            // Schedule retry
+                            handleWebhookFailure(webhook.id, "Processing failed")
                             failedCount++
                         }
+                    } catch (e: Exception) {
+                        logsSvc.insert(
+                            priority = LogEntry.Priority.ERROR,
+                            module = NAME,
+                            message = "Error processing webhook ${webhook.id}: ${e.message}",
+                            context = mapOf(
+                                "webhookId" to webhook.id,
+                                "error" to e.toString()
+                            )
+                        )
+                        handleWebhookFailure(webhook.id, e.message)
+                        failedCount++
                     }
                 }
-
-                logsSvc.insert(
-                    priority = LogEntry.Priority.DEBUG,
-                    module = NAME,
-                    message = "Batch processing completed",
-                    context = mapOf(
-                        "totalInBatch" to webhooks.size,
-                        "processed" to processedCount,
-                        "failed" to failedCount
-                    )
-                )
-
-                return@withContext processedCount
-
-            } catch (e: Exception) {
-                logsSvc.insert(
-                    priority = LogEntry.Priority.ERROR,
-                    module = NAME,
-                    message = "Error processing batch: ${e.message}",
-                    context = mapOf("error" to e.toString())
-                )
-                throw e
             }
+
+            logsSvc.insert(
+                priority = LogEntry.Priority.DEBUG,
+                module = NAME,
+                message = "Batch processing completed",
+                context = mapOf(
+                    "totalInBatch" to webhooks.size,
+                    "processed" to processedCount,
+                    "failed" to failedCount
+                )
+            )
+
+            return@withContext processedCount
+        } catch (e: Exception) {
+            logsSvc.insert(
+                priority = LogEntry.Priority.ERROR,
+                module = NAME,
+                message = "Error processing batch: ${e.message}",
+                context = mapOf("error" to e.toString())
+            )
+            throw e
         }
+    }
 
     /**
      * Send a webhook using the same HTTP client configuration as the original worker.
      */
-    private suspend fun sendWebhook(webhook: WebhookQueueEntity): Boolean =
-        withContext(Dispatchers.IO) {
-            return@withContext try {
-                val url = webhook.url
-                val payload = payloadStorage.read(webhook.payload) ?: return@withContext false
-                val data = gson.fromJson(payload, JsonObject::class.java)
-                    ?: return@withContext false
+    private suspend fun sendWebhook(webhook: WebhookQueueEntity): Boolean = withContext(Dispatchers.IO) {
+        return@withContext try {
+            val url = webhook.url
+            val payload = payloadStorage.read(webhook.payload) ?: return@withContext false
+            val data = gson.fromJson(payload, JsonObject::class.java)
+                ?: return@withContext false
 
-                val response = client.post(url) {
-                    contentType(ContentType.Application.Json)
-                    setBody(data)
-                }
+            val response = client.post(url) {
+                contentType(ContentType.Application.Json)
+                setBody(data)
+            }
 
-                if (response.status.value in 200..299) {
-                    logsSvc.insert(
-                        priority = LogEntry.Priority.INFO,
-                        module = NAME,
-                        message = "Webhook sent successfully",
-                        context = mapOf(
-                            "webhookId" to webhook.id,
-                            "url" to url,
-                            "retryCount" to webhook.retryCount
-                        )
-                    )
-                    true
-                } else {
-                    logsSvc.insert(
-                        priority = LogEntry.Priority.WARN,
-                        module = NAME,
-                        message = "Webhook failed with status ${response.status.value}",
-                        context = mapOf(
-                            "webhookId" to webhook.id,
-                            "url" to url,
-                            "statusCode" to response.status.value,
-                            "retryCount" to webhook.retryCount
-                        )
-                    )
-                    false
-                }
-
-            } catch (e: IllegalArgumentException) {
+            if (response.status.value in 200..299) {
                 logsSvc.insert(
-                    priority = LogEntry.Priority.ERROR,
+                    priority = LogEntry.Priority.INFO,
                     module = NAME,
-                    message = "Webhook invalid argument: ${e.message}",
+                    message = "Webhook sent successfully",
                     context = mapOf(
                         "webhookId" to webhook.id,
-                        "error" to e.message
-                    )
-                )
-                false
-            } catch (e: JSONException) {
-                logsSvc.insert(
-                    priority = LogEntry.Priority.ERROR,
-                    module = NAME,
-                    message = "Webhook JSON error: ${e.message}",
-                    context = mapOf(
-                        "webhookId" to webhook.id,
-                        "error" to e.message
-                    )
-                )
-                false
-            } catch (e: Exception) {
-                logsSvc.insert(
-                    priority = LogEntry.Priority.WARN,
-                    module = NAME,
-                    message = "Webhook network error: ${e.message}",
-                    context = mapOf(
-                        "webhookId" to webhook.id,
-                        "error" to e.message,
+                        "url" to url,
                         "retryCount" to webhook.retryCount
                     )
                 )
-                false // Network errors should trigger retry
+                true
+            } else {
+                logsSvc.insert(
+                    priority = LogEntry.Priority.WARN,
+                    module = NAME,
+                    message = "Webhook failed with status ${response.status.value}",
+                    context = mapOf(
+                        "webhookId" to webhook.id,
+                        "url" to url,
+                        "statusCode" to response.status.value,
+                        "retryCount" to webhook.retryCount
+                    )
+                )
+                false
             }
+        } catch (e: IllegalArgumentException) {
+            logsSvc.insert(
+                priority = LogEntry.Priority.ERROR,
+                module = NAME,
+                message = "Webhook invalid argument: ${e.message}",
+                context = mapOf(
+                    "webhookId" to webhook.id,
+                    "error" to e.message
+                )
+            )
+            false
+        } catch (e: JSONException) {
+            logsSvc.insert(
+                priority = LogEntry.Priority.ERROR,
+                module = NAME,
+                message = "Webhook JSON error: ${e.message}",
+                context = mapOf(
+                    "webhookId" to webhook.id,
+                    "error" to e.message
+                )
+            )
+            false
+        } catch (e: Exception) {
+            logsSvc.insert(
+                priority = LogEntry.Priority.WARN,
+                module = NAME,
+                message = "Webhook network error: ${e.message}",
+                context = mapOf(
+                    "webhookId" to webhook.id,
+                    "error" to e.message,
+                    "retryCount" to webhook.retryCount
+                )
+            )
+            false // Network errors should trigger retry
         }
+    }
 
     /**
      * Handle webhook failure and schedule retry if appropriate.

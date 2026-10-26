@@ -19,7 +19,8 @@ import me.capcom.smsgateway.modules.webhooks.vm.WebhookQueueViewModel
 import me.capcom.smsgateway.ui.adapters.WebhookQueueAdapter
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class WebhookQueueListFragment : Fragment(),
+class WebhookQueueListFragment :
+    Fragment(),
     WebhookQueueAdapter.OnItemClickListener<WebhookQueueEntity> {
     private val viewModel: WebhookQueueViewModel by viewModel()
     private val adapter: WebhookQueueAdapter = WebhookQueueAdapter(this)
@@ -27,11 +28,7 @@ class WebhookQueueListFragment : Fragment(),
     private var _binding: FragmentWebhookQueueListBinding? = null
     private val binding get() = _binding!!
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentWebhookQueueListBinding.inflate(inflater, container, false)
         return binding.root
     }

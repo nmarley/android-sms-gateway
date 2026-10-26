@@ -20,10 +20,7 @@ import me.capcom.smsgateway.modules.localserver.domain.TokenResponse
 import me.capcom.smsgateway.modules.logs.LogsService
 import me.capcom.smsgateway.modules.logs.db.LogEntry
 
-class AuthRoutes(
-    private val jwtService: JwtService,
-    private val logsService: LogsService,
-) {
+class AuthRoutes(private val jwtService: JwtService, private val logsService: LogsService) {
     fun register(routing: Route) {
         routing.apply {
             route("token") {
@@ -44,7 +41,7 @@ class AuthRoutes(
                     tokenType = "Bearer",
                     accessToken = tokens.access.token,
                     expiresAt = tokens.access.expiresAt,
-                    refreshToken = tokens.refresh.token,
+                    refreshToken = tokens.refresh.token
                 )
             )
         }
@@ -77,8 +74,8 @@ class AuthRoutes(
                     "AuthRoutes",
                     "Failed to parse original_scopes claim",
                     mapOf(
-                        "exception" to e.message,
-                    ),
+                        "exception" to e.message
+                    )
                 )
                 call.respond(HttpStatusCode.Unauthorized, mapOf("message" to "Unauthorized"))
                 return@post
@@ -101,7 +98,7 @@ class AuthRoutes(
                     tokenType = "Bearer",
                     accessToken = refreshed.access.token,
                     expiresAt = refreshed.access.expiresAt,
-                    refreshToken = refreshed.refresh.token,
+                    refreshToken = refreshed.refresh.token
                 )
             )
         }
@@ -118,5 +115,4 @@ class AuthRoutes(
             call.respond(HttpStatusCode.NoContent)
         }
     }
-
 }

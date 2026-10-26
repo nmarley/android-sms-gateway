@@ -3,6 +3,7 @@ package me.capcom.smsgateway.modules.messages
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.distinctUntilChanged
 import com.google.gson.GsonBuilder
+import java.util.Date
 import me.capcom.smsgateway.data.dao.MessagesDao
 import me.capcom.smsgateway.data.entities.Message
 import me.capcom.smsgateway.data.entities.MessageRecipient
@@ -14,12 +15,8 @@ import me.capcom.smsgateway.domain.ProcessingState
 import me.capcom.smsgateway.modules.messages.data.SendParams
 import me.capcom.smsgateway.modules.messages.data.SendRequest
 import me.capcom.smsgateway.modules.messages.data.StoredSendRequest
-import java.util.Date
 
-class MessagesRepository(
-    private val dao: MessagesDao,
-    private val machine: MessageStateService,
-) {
+class MessagesRepository(private val dao: MessagesDao, private val machine: MessageStateService) {
     private val gson = GsonBuilder().serializeNulls().create()
 
     fun selectLast(limit: Int) = dao.selectLast(limit).distinctUntilChanged()
@@ -29,10 +26,8 @@ class MessagesRepository(
 
     val messagesTotals: LiveData<MessagesTotals> = dao.getMessagesStats().distinctUntilChanged()
 
-    fun get(id: String): StoredSendRequest {
-        return dao.get(id)?.toRequest()
-            ?: throw IllegalArgumentException("Message with id $id not found")
-    }
+    fun get(id: String): StoredSendRequest = dao.get(id)?.toRequest()
+        ?: throw IllegalArgumentException("Message with id $id not found")
 
     fun enqueue(request: SendRequest): MessageWithRecipients {
         val message = MessageWithRecipients(
@@ -48,7 +43,7 @@ class MessagesRepository(
                 priority = request.params.priority ?: Message.PRIORITY_DEFAULT,
                 source = request.source,
 
-                createdAt = request.message.createdAt.time,
+                createdAt = request.message.createdAt.time
             ),
             request.message.phoneNumbers.map {
                 MessageRecipient(
@@ -56,7 +51,7 @@ class MessagesRepository(
                     it,
                     ProcessingState.Pending
                 )
-            },
+            }
         )
 
         dao.insert(message)
@@ -113,7 +108,7 @@ class MessagesRepository(
                 phoneNumbers = message.recipients.filter { it.state == ProcessingState.Pending }
                     .map { it.phoneNumber },
                 isEncrypted = message.message.isEncrypted,
-                createdAt = Date(message.message.createdAt),
+                createdAt = Date(message.message.createdAt)
             ),
             SendParams(
                 withDeliveryReport = message.message.withDeliveryReport,
@@ -122,7 +117,7 @@ class MessagesRepository(
                 validUntil = message.message.validUntil,
                 scheduleAt = message.message.scheduleAt,
                 priority = message.message.priority
-            ),
+            )
         )
     }
 }

@@ -1,11 +1,11 @@
 package me.capcom.smsgateway.data
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
-import org.junit.Test
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.TimeZone
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Test
 
 class ConvertersTest {
     private val converters = Converters()

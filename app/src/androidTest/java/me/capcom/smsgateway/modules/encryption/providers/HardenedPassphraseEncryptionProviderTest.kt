@@ -12,9 +12,8 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class HardenedPassphraseEncryptionProviderTest {
-    private fun provider(passphrase: String): HardenedPassphraseEncryptionProvider {
-        return HardenedPassphraseEncryptionProvider(EncryptionSettings(FakeStorage(passphrase)))
-    }
+    private fun provider(passphrase: String): HardenedPassphraseEncryptionProvider =
+        HardenedPassphraseEncryptionProvider(EncryptionSettings(FakeStorage(passphrase)))
 
     @Test
     fun encryptDecryptRoundTrip() {
@@ -25,7 +24,7 @@ class HardenedPassphraseEncryptionProviderTest {
             "",
             "hello",
             "unicode: 日本語 и ελληνικά",
-            "a".repeat(1000),
+            "a".repeat(1000)
         )) {
             runBlocking {
                 assertEquals(plain, provider.decrypt(provider.encrypt(plain)))

@@ -65,7 +65,7 @@ internal class MMSParserTest {
                 78 78 78 2F 6D 6D 3F 54 3D 6D 2D 78 2D
                 78 2D 78 2D 78 78 78 78 78 78 2D 78 78
                 00 86 80
-            """.trimIndent(),
+            """.trimIndent()
         )
 
         tests.forEach {

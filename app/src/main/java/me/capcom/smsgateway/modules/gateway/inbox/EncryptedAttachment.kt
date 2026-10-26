@@ -7,5 +7,5 @@ data class EncryptedAttachment(
     @SerializedName("contentType") val contentType: String,
     @SerializedName("name") val name: String,
     @SerializedName("size") val size: Long?,
-    @SerializedName("data") val data: String,
+    @SerializedName("data") val data: String
 )

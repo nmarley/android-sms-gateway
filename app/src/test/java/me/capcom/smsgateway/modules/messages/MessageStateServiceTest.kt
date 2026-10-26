@@ -87,10 +87,9 @@ internal class FakeMessagesDao : MessagesDao {
 
     fun storedMessage(id: String): Message? = messages[id]
 
-    fun recipientState(id: String, phone: String): ProcessingState? =
-        recipients[Pair(id, phone)]?.state
+    fun recipientState(id: String, phone: String): ProcessingState? = recipients[Pair(id, phone)]?.state
 
-    //#region Reads used by the machine
+    // #region Reads used by the machine
     override fun get(id: String): MessageWithRecipients? {
         val message = messages[id] ?: return null
         val messageRecipients = recipients.values.filter { it.messageId == id }
@@ -101,12 +100,12 @@ internal class FakeMessagesDao : MessagesDao {
         val processed = messages.values.filter { message ->
             val processedAt = message.processedAt
             processedAt != null &&
-                    processedAt >= timestamp &&
-                    message.state !in setOf(
-                        ProcessingState.Pending,
-                        ProcessingState.Cancelled,
-                        ProcessingState.Failed
-                    )
+                processedAt >= timestamp &&
+                message.state !in setOf(
+                    ProcessingState.Pending,
+                    ProcessingState.Cancelled,
+                    ProcessingState.Failed
+                )
         }
         return MessagesStats(
             count = processed.size,
@@ -124,9 +123,9 @@ internal class FakeMessagesDao : MessagesDao {
             lastTimestamp = failed.mapNotNull { it.processedAt }.maxOrNull() ?: 0L
         )
     }
-    //#endregion
+    // #endregion
 
-    //#region Underscored SQL primitives (guards mirror Room SQL)
+    // #region Underscored SQL primitives (guards mirror Room SQL)
     override fun _insert(message: Message) {
         messages[message.id] = message
     }
@@ -146,7 +145,9 @@ internal class FakeMessagesDao : MessagesDao {
     override fun _insertRecipientStatesByMessage(messageId: String, state: ProcessingState) {
         recipients.values
             .filter { it.messageId == messageId }
-            .forEach { recipientHistory += RecipientState(messageId, it.phoneNumber, state, System.currentTimeMillis()) }
+            .forEach {
+                recipientHistory += RecipientState(messageId, it.phoneNumber, state, System.currentTimeMillis())
+            }
     }
 
     override suspend fun _updateMessageState(id: String, state: ProcessingState) {
@@ -165,12 +166,7 @@ internal class FakeMessagesDao : MessagesDao {
         processedWrites++
     }
 
-    override fun _updateRecipientState(
-        id: String,
-        phoneNumber: String,
-        state: ProcessingState,
-        error: String?
-    ) {
+    override fun _updateRecipientState(id: String, phoneNumber: String, state: ProcessingState, error: String?) {
         val key = Pair(id, phoneNumber)
         val current = recipients[key] ?: return
         if (current.state == ProcessingState.Failed) return
@@ -178,11 +174,7 @@ internal class FakeMessagesDao : MessagesDao {
         recipientStateWrites++
     }
 
-    override fun _updateRecipientsState(
-        id: String,
-        state: ProcessingState,
-        error: String?
-    ) {
+    override fun _updateRecipientsState(id: String, state: ProcessingState, error: String?) {
         recipients.keys.filter { it.first == id }.forEach { key ->
             val current = recipients.getValue(key)
             if (current.state != ProcessingState.Failed) {
@@ -203,13 +195,12 @@ internal class FakeMessagesDao : MessagesDao {
     }
 
     override suspend fun truncateLog(until: Long) = Unit
-    //#endregion
+    // #endregion
 
-    //#region Unused reads (not exercised by MessageStateService tests)
+    // #region Unused reads (not exercised by MessageStateService tests)
     // no initial value: distinctUntilChanged() must not emit (no Looper in
     // plain JVM tests), and no test observes the totals LiveData
-    override fun getMessagesStats(): androidx.lifecycle.LiveData<MessagesTotals> =
-        androidx.lifecycle.MutableLiveData()
+    override fun getMessagesStats(): androidx.lifecycle.LiveData<MessagesTotals> = androidx.lifecycle.MutableLiveData()
 
     override fun selectLast(limit: Int): androidx.lifecycle.LiveData<List<Message>> =
         throw UnsupportedOperationException("not used")
@@ -217,22 +208,15 @@ internal class FakeMessagesDao : MessagesDao {
     override fun selectLastFiltered(limit: Int, state: String?): androidx.lifecycle.LiveData<List<Message>> =
         throw UnsupportedOperationException("not used")
 
-    override fun getPendingFifo(now: Date): MessageWithRecipients? =
-        throw UnsupportedOperationException("not used")
+    override fun getPendingFifo(now: Date): MessageWithRecipients? = throw UnsupportedOperationException("not used")
 
-    override fun getPendingLifo(now: Date): MessageWithRecipients? =
-        throw UnsupportedOperationException("not used")
+    override fun getPendingLifo(now: Date): MessageWithRecipients? = throw UnsupportedOperationException("not used")
 
     override fun nextScheduledTime(): Long? = null
 
     override fun countExpeditedDue(minPriority: Byte, now: Date): Int = 0
 
-    override fun count(
-        source: EntitySource,
-        state: ProcessingState?,
-        start: Long,
-        end: Long
-    ): Int = 0
+    override fun count(source: EntitySource, state: ProcessingState?, start: Long, end: Long): Int = 0
 
     override fun selectDescending(
         source: EntitySource,
@@ -251,7 +235,7 @@ internal class FakeMessagesDao : MessagesDao {
         limit: Int,
         offset: Int
     ): List<MessageWithRecipients> = emptyList()
-    //#endregion
+    // #endregion
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -285,7 +269,7 @@ internal class MessageStateServiceTest {
         assertEquals(0, dao.processedWrites)
     }
 
-    //#region cancel via transitionRecipients (OQ-5 STRICT REJECT)
+    // #region cancel via transitionRecipients (OQ-5 STRICT REJECT)
     @Test
     fun cancelMixedPendingProcessedRecipientsThrowsWithClearMessage() = runTest {
         val h = harness()
@@ -316,7 +300,13 @@ internal class MessageStateServiceTest {
         // recipients already Cancelled are self-noops and stay valid; every other
         // state that cannot reach Cancelled must reject the whole bulk cancel
         ProcessingState.values()
-            .filter { !MessageStateTransitions.canTransition(it, ProcessingState.Cancelled, MessageStateTransitions.Scope.Recipient) }
+            .filter {
+                !MessageStateTransitions.canTransition(
+                    it,
+                    ProcessingState.Cancelled,
+                    MessageStateTransitions.Scope.Recipient
+                )
+            }
             .forEach { progressed ->
                 val id = "m-$progressed"
                 h.dao.seed(
@@ -437,9 +427,9 @@ internal class MessageStateServiceTest {
         assertNoWrites(h.dao)
         assertTrue(h.events.isEmpty())
     }
-    //#endregion
+    // #endregion
 
-    //#region Processed sync (processedAt via setMessageProcessed)
+    // #region Processed sync (processedAt via setMessageProcessed)
     @Test
     fun processedSyncWritesProcessedAtAndCountProcessedFromCountsTheMessage() = runTest {
         val h = harness()
@@ -470,9 +460,9 @@ internal class MessageStateServiceTest {
         assertEquals(0, h.dao.processedWrites)
         assertTrue(h.events.isEmpty())
     }
-    //#endregion
+    // #endregion
 
-    //#region Bulk transition to Failed (TTL path regression)
+    // #region Bulk transition to Failed (TTL path regression)
     @Test
     fun bulkTransitionToFailedStillWritesAllRecipientsAndEmitsError() = runTest {
         val h = harness()
@@ -497,5 +487,5 @@ internal class MessageStateServiceTest {
         assertEquals(ProcessingState.Failed, event.state)
         assertEquals("TTL expired", event.error)
     }
-    //#endregion
+    // #endregion
 }

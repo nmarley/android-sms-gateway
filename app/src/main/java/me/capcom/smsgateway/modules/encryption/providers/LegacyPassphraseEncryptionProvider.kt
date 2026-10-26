@@ -3,9 +3,7 @@ package me.capcom.smsgateway.modules.encryption.providers
 import java.security.SecureRandom
 import me.capcom.smsgateway.modules.encryption.EncryptionSettings
 
-class LegacyPassphraseEncryptionProvider(
-    settings: EncryptionSettings,
-) : BasePassphraseEncryptionProvider(settings) {
+class LegacyPassphraseEncryptionProvider(settings: EncryptionSettings) : BasePassphraseEncryptionProvider(settings) {
 
     override fun generateIvAndSalt(): Pair<ByteArray, ByteArray> {
         val salt = ByteArray(SALT_LENGTH)
@@ -13,9 +11,8 @@ class LegacyPassphraseEncryptionProvider(
         return salt to salt
     }
 
-    override fun formatOutput(ivEnc: String, saltEnc: String, ctEnc: String): String {
-        return paramsString() + "$" + saltEnc + "$" + ctEnc
-    }
+    override fun formatOutput(ivEnc: String, saltEnc: String, ctEnc: String): String =
+        paramsString() + "$" + saltEnc + "$" + ctEnc
 
     override fun parseChunks(chunks: List<String>): Parsed {
         if (chunks.size < 3) {
@@ -27,7 +24,7 @@ class LegacyPassphraseEncryptionProvider(
             params = parseParams(chunks[0]),
             iv = salt,
             salt = salt,
-            ct = chunks[2],
+            ct = chunks[2]
         )
     }
 }

@@ -3,12 +3,12 @@ package me.capcom.smsgateway.modules.localserver.domain
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
+import java.util.Date
+import java.util.TimeZone
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import java.util.Date
-import java.util.TimeZone
 
 /**
  * Pins the wire contract of the local server's device listing against the
@@ -54,20 +54,17 @@ class DeviceTest {
         )
     }
 
-    private fun device(
-        publicKey: String? = null,
-        keyVersion: Int? = null,
-        simCards: List<SimCard> = emptyList(),
-    ) = Device(
-        id = "PyDmBQZZXYmyxMwED8Fzy",
-        name = "Google/sargo",
-        createdAt = Date(0),
-        updatedAt = Date(10_000),
-        lastSeen = Date(20_000),
-        simCards = simCards,
-        publicKey = publicKey,
-        keyVersion = keyVersion,
-    )
+    private fun device(publicKey: String? = null, keyVersion: Int? = null, simCards: List<SimCard> = emptyList()) =
+        Device(
+            id = "PyDmBQZZXYmyxMwED8Fzy",
+            name = "Google/sargo",
+            createdAt = Date(0),
+            updatedAt = Date(10_000),
+            lastSeen = Date(20_000),
+            simCards = simCards,
+            publicKey = publicKey,
+            keyVersion = keyVersion
+        )
 
     @Test
     fun serializesKeyFields() {
@@ -77,7 +74,7 @@ class DeviceTest {
                 keyVersion = 1,
                 simCards = listOf(
                     SimCard(0, 1, "+79990001234", "MTS", "897010112233445")
-                ),
+                )
             )
         )
 
@@ -125,8 +122,14 @@ class DeviceTest {
 
         assertEquals(
             setOf(
-                "publicKey", "keyVersion", "id", "name",
-                "createdAt", "updatedAt", "lastSeen", "simCards"
+                "publicKey",
+                "keyVersion",
+                "id",
+                "name",
+                "createdAt",
+                "updatedAt",
+                "lastSeen",
+                "simCards"
             ),
             JsonParser.parseString(json).asJsonObject.keySet()
         )

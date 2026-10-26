@@ -10,14 +10,14 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.EditTextPreference
 import androidx.preference.Preference
+import java.net.URL
+import java.text.DateFormat
 import kotlinx.coroutines.launch
 import me.capcom.smsgateway.R
 import me.capcom.smsgateway.modules.gateway.GatewayService
 import me.capcom.smsgateway.modules.gateway.GatewaySettings
 import me.capcom.smsgateway.ui.dialogs.PasswordPromptDialogFragment
 import org.koin.android.ext.android.inject
-import java.net.URL
-import java.text.DateFormat
 
 class CloudServerSettingsFragment : BasePreferenceFragment() {
 
@@ -41,7 +41,6 @@ class CloudServerSettingsFragment : BasePreferenceFragment() {
             }
             return@setSummaryProvider hostname
         }
-
 
         findPreference<EditTextPreference>("gateway.cloud_url")?.setOnPreferenceChangeListener { _, newValue ->
             val value = newValue as? String
@@ -141,11 +140,7 @@ class CloudServerSettingsFragment : BasePreferenceFragment() {
         }
     }
 
-    private fun showPasswordPromptDialog(
-        message: String,
-        action: String? = null,
-        newPassword: String? = null
-    ) {
+    private fun showPasswordPromptDialog(message: String, action: String? = null, newPassword: String? = null) {
         PasswordPromptDialogFragment.newInstance(message, action, newPassword)
             .show(parentFragmentManager, "password_prompt")
     }

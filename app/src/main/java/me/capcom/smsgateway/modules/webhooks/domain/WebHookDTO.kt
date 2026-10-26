@@ -7,5 +7,5 @@ data class WebHookDTO(
     val deviceId: String?,
     val url: String,
     val event: WebHookEvent,
-    val source: EntitySource,
+    val source: EntitySource
 )

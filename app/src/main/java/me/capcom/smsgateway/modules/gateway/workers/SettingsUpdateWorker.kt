@@ -10,14 +10,15 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkRequest
 import androidx.work.WorkerParameters
+import java.util.concurrent.TimeUnit
 import me.capcom.smsgateway.modules.gateway.GatewayService
 import me.capcom.smsgateway.modules.settings.SettingsService
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
-import java.util.concurrent.TimeUnit
 
 class SettingsUpdateWorker(appContext: Context, params: WorkerParameters) :
-    CoroutineWorker(appContext, params), KoinComponent {
+    CoroutineWorker(appContext, params),
+    KoinComponent {
     override suspend fun doWork(): Result {
         val gatewaySvc: GatewayService = get()
         val settingsSvc: SettingsService = get()

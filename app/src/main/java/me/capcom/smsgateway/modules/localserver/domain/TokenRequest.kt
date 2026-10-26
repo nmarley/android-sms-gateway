@@ -6,5 +6,5 @@ data class TokenRequest(
     @SerializedName("ttl")
     val ttl: Long?,
     @SerializedName("scopes")
-    val scopes: List<String>,
+    val scopes: List<String>
 )

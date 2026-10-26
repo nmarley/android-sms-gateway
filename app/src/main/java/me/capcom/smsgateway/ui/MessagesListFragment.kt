@@ -12,23 +12,21 @@ import androidx.recyclerview.widget.RecyclerView
 import me.capcom.smsgateway.R
 import me.capcom.smsgateway.data.entities.Message
 import me.capcom.smsgateway.databinding.FragmentMessagesListBinding
+import me.capcom.smsgateway.domain.ProcessingState
 import me.capcom.smsgateway.modules.messages.vm.MessagesListViewModel
 import me.capcom.smsgateway.ui.adapters.MessagesAdapter
-import me.capcom.smsgateway.domain.ProcessingState
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-
-class MessagesListFragment : Fragment(), MessagesAdapter.OnItemClickListener<Message> {
+class MessagesListFragment :
+    Fragment(),
+    MessagesAdapter.OnItemClickListener<Message> {
 
     private val viewModel: MessagesListViewModel by viewModel()
     private val messagesAdapter = MessagesAdapter(this)
     private var _binding: FragmentMessagesListBinding? = null
     private val binding get() = _binding!!
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         // Inflate the layout for this fragment
         _binding = FragmentMessagesListBinding.inflate(inflater, container, false)
         return binding.root
@@ -89,13 +87,36 @@ class MessagesListFragment : Fragment(), MessagesAdapter.OnItemClickListener<Mes
 
         viewModel.filter.observe(viewLifecycleOwner) { state ->
             when (state) {
-                null -> { if (!binding.filterAll.isChecked) binding.filterAll.isChecked = true }
-                ProcessingState.Pending -> { if (!binding.filterPending.isChecked) binding.filterPending.isChecked = true }
-                ProcessingState.Sent -> { if (!binding.filterSent.isChecked) binding.filterSent.isChecked = true }
-                ProcessingState.Delivered -> { if (!binding.filterDelivered.isChecked) binding.filterDelivered.isChecked = true }
-                ProcessingState.Failed -> { if (!binding.filterFailed.isChecked) binding.filterFailed.isChecked = true }
-                ProcessingState.Cancelled -> { if (!binding.filterCancelled.isChecked) binding.filterCancelled.isChecked = true }
-                else -> { if (!binding.filterAll.isChecked) binding.filterAll.isChecked = true }
+                null -> {
+                    if (!binding.filterAll.isChecked) binding.filterAll.isChecked = true
+                }
+                ProcessingState.Pending -> {
+                    if (!binding.filterPending.isChecked) {
+                        binding.filterPending.isChecked =
+                            true
+                    }
+                }
+                ProcessingState.Sent -> {
+                    if (!binding.filterSent.isChecked) binding.filterSent.isChecked = true
+                }
+                ProcessingState.Delivered -> {
+                    if (!binding.filterDelivered.isChecked) {
+                        binding.filterDelivered.isChecked =
+                            true
+                    }
+                }
+                ProcessingState.Failed -> {
+                    if (!binding.filterFailed.isChecked) binding.filterFailed.isChecked = true
+                }
+                ProcessingState.Cancelled -> {
+                    if (!binding.filterCancelled.isChecked) {
+                        binding.filterCancelled.isChecked =
+                            true
+                    }
+                }
+                else -> {
+                    if (!binding.filterAll.isChecked) binding.filterAll.isChecked = true
+                }
             }
         }
 
@@ -137,7 +158,6 @@ class MessagesListFragment : Fragment(), MessagesAdapter.OnItemClickListener<Mes
     }
 
     companion object {
-        fun newInstance() =
-            MessagesListFragment()
+        fun newInstance() = MessagesListFragment()
     }
 }

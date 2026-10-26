@@ -8,6 +8,8 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Telephony
 import android.util.Log
+import java.security.MessageDigest
+import java.util.Date
 import me.capcom.smsgateway.extensions.setComponentEnabled
 import me.capcom.smsgateway.helpers.SubscriptionsHelper
 import me.capcom.smsgateway.modules.logs.LogsService
@@ -16,10 +18,10 @@ import me.capcom.smsgateway.modules.receiver.data.InboxMessage
 import me.capcom.smsgateway.modules.receiver.parsers.MMSParser
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import java.security.MessageDigest
-import java.util.Date
 
-class MmsReceiver : BroadcastReceiver(), KoinComponent {
+class MmsReceiver :
+    BroadcastReceiver(),
+    KoinComponent {
     private val receiverSvc: ReceiverService by inject()
     private val logsService: LogsService by inject()
 
@@ -32,7 +34,6 @@ class MmsReceiver : BroadcastReceiver(), KoinComponent {
         if (contentType != "application/vnd.wap.mms-message") {
             return
         }
-
 
         try {
             val bundle: Bundle? = intent.extras
@@ -62,10 +63,9 @@ class MmsReceiver : BroadcastReceiver(), KoinComponent {
                     "pduSizeBytes" to pdu.size,
                     "pduSha256" to MessageDigest.getInstance("SHA-256")
                         .digest(pdu)
-                        .joinToString("") { "%02x".format(it) },
+                        .joinToString("") { "%02x".format(it) }
                 )
             )
-
 
             val mmsNotification = MMSParser.parseMNotificationInd(pdu)
 
@@ -79,12 +79,11 @@ class MmsReceiver : BroadcastReceiver(), KoinComponent {
                 contentClass = mmsNotification.contentClass?.name,
                 address = mmsNotification.from.substringBefore('/'),
                 date = mmsNotification.date ?: Date(),
-                subscriptionId = SubscriptionsHelper.extractSubscriptionId(context, intent),
+                subscriptionId = SubscriptionsHelper.extractSubscriptionId(context, intent)
             )
 
             // Process the message using the existing ReceiverService
             receiverSvc.process(context, mmsMessage, true)
-
         } catch (e: Exception) {
             Log.e(TAG, "Error processing MMS", e)
         }

@@ -13,12 +13,8 @@ class MessageRecipientsAdapter :
         RecipientsDiffCallback()
     ) {
 
-    override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int
-    ): RecipientViewHolder {
-        return RecipientViewHolder.create(parent)
-    }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecipientViewHolder =
+        RecipientViewHolder.create(parent)
 
     override fun onBindViewHolder(holder: RecipientViewHolder, position: Int) {
         val message = getItem(position)
@@ -26,8 +22,7 @@ class MessageRecipientsAdapter :
         holder.bind(message)
     }
 
-    class RecipientViewHolder(private val binding: ItemMessageBinding) :
-        RecyclerView.ViewHolder(binding.root) {
+    class RecipientViewHolder(private val binding: ItemMessageBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(recipient: MessageRecipient) {
             binding.textViewId.text = recipient.phoneNumber
             binding.textViewState.text = recipient.state.name
@@ -36,30 +31,21 @@ class MessageRecipientsAdapter :
         }
 
         companion object {
-            fun create(parent: ViewGroup): RecipientViewHolder {
-                return RecipientViewHolder(
-                    ItemMessageBinding.inflate(
-                        LayoutInflater.from(parent.context), parent, false
-                    )
+            fun create(parent: ViewGroup): RecipientViewHolder = RecipientViewHolder(
+                ItemMessageBinding.inflate(
+                    LayoutInflater.from(parent.context),
+                    parent,
+                    false
                 )
-            }
+            )
         }
     }
 
-    class RecipientsDiffCallback :
-        androidx.recyclerview.widget.DiffUtil.ItemCallback<MessageRecipient>() {
-        override fun areItemsTheSame(
-            oldItem: MessageRecipient,
-            newItem: MessageRecipient
-        ): Boolean {
-            return oldItem.phoneNumber == newItem.phoneNumber
-        }
+    class RecipientsDiffCallback : androidx.recyclerview.widget.DiffUtil.ItemCallback<MessageRecipient>() {
+        override fun areItemsTheSame(oldItem: MessageRecipient, newItem: MessageRecipient): Boolean =
+            oldItem.phoneNumber == newItem.phoneNumber
 
-        override fun areContentsTheSame(
-            oldItem: MessageRecipient,
-            newItem: MessageRecipient
-        ): Boolean {
-            return oldItem == newItem
-        }
+        override fun areContentsTheSame(oldItem: MessageRecipient, newItem: MessageRecipient): Boolean =
+            oldItem == newItem
     }
 }

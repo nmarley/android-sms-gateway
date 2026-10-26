@@ -11,12 +11,10 @@ import me.capcom.smsgateway.modules.webhooks.db.WebhookQueueRepository
 import me.capcom.smsgateway.modules.webhooks.db.WebhookQueueStatistics
 import me.capcom.smsgateway.modules.webhooks.db.WebhookStatus
 
-class WebhookQueueViewModel(
-    private val repository: WebhookQueueRepository
-) : ViewModel() {
+class WebhookQueueViewModel(private val repository: WebhookQueueRepository) : ViewModel() {
 
-    private val _queryParams = MutableLiveData<Pair<Int, WebhookStatus?>>(CHUNK_SIZE to null)
-    val filter: LiveData<WebhookStatus?> = _queryParams.map { it.second }
+    private val queryParams = MutableLiveData<Pair<Int, WebhookStatus?>>(CHUNK_SIZE to null)
+    val filter: LiveData<WebhookStatus?> = queryParams.map { it.second }
 
     private val _filteredEntries = MediatorLiveData<List<WebhookQueueEntity>>()
     val filteredEntries: LiveData<List<WebhookQueueEntity>> = _filteredEntries
@@ -25,9 +23,11 @@ class WebhookQueueViewModel(
     val queueStatistics: LiveData<WebhookQueueStatistics?> = _queueStatistics
 
     init {
-        _filteredEntries.addSource(_queryParams.switchMap { (limit, status) ->
-            repository.selectLast(limit, status)
-        }) {
+        _filteredEntries.addSource(
+            queryParams.switchMap { (limit, status) ->
+                repository.selectLast(limit, status)
+            }
+        ) {
             _filteredEntries.value = it
         }
     }
@@ -37,7 +37,7 @@ class WebhookQueueViewModel(
      * Resets the list back to the bounded limit.
      */
     fun setFilter(status: WebhookStatus?) {
-        _queryParams.value = CHUNK_SIZE to status
+        queryParams.value = CHUNK_SIZE to status
     }
 
     /**

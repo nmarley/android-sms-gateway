@@ -50,7 +50,7 @@ class CancelEntryPointsParityTest {
     private fun cloudCancellingMessage(): GatewayApi.Message =
         gson.fromJson(messageJson(cloudCancelWireState.name), GatewayApi.Message::class.java)
 
-    //#region POLL parity (handleCloudCancel)
+    // #region POLL parity (handleCloudCancel)
     @Test
     fun pollCancelSuccessInvokesCancelExactlyOnceWithoutPatch() = runTest {
         val message = cloudCancellingMessage()
@@ -112,9 +112,9 @@ class CancelEntryPointsParityTest {
         assertEquals("retry must still invoke the cancel path", 1, invoked)
         assertFalse("already-cancelled retry must not report state", sent)
     }
-    //#endregion
+    // #endregion
 
-    //#region PUSH parity + hardening (a) per-collector isolation
+    // #region PUSH parity + hardening (a) per-collector isolation
     /**
      * 1:1 emulation of the hardened gateway/EventsReceiver collector structure:
      * inner IAE+ISE catches kept, outer per-collector try/catch rethrowing
@@ -319,5 +319,5 @@ class CancelEntryPointsParityTest {
             propagated is CancellationException
         )
     }
-    //#endregion
+    // #endregion
 }

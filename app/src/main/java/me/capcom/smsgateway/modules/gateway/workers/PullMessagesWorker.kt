@@ -13,15 +13,12 @@ import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.WorkRequest
 import androidx.work.WorkerParameters
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.capcom.smsgateway.App
-import java.util.concurrent.TimeUnit
 
-class PullMessagesWorker(
-    appContext: Context,
-    params: WorkerParameters
-) : CoroutineWorker(appContext, params) {
+class PullMessagesWorker(appContext: Context, params: WorkerParameters) : CoroutineWorker(appContext, params) {
     override suspend fun doWork(): Result {
         try {
             withContext(Dispatchers.IO) {
@@ -40,7 +37,10 @@ class PullMessagesWorker(
         const val NAME = "PullMessagesWorker"
 
         fun start(context: Context) {
-            val work = PeriodicWorkRequestBuilder<PullMessagesWorker>(PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS, TimeUnit.MILLISECONDS)
+            val work = PeriodicWorkRequestBuilder<PullMessagesWorker>(
+                PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS,
+                TimeUnit.MILLISECONDS
+            )
                 .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, WorkRequest.MIN_BACKOFF_MILLIS, TimeUnit.MILLISECONDS)
                 .setConstraints(
                     Constraints.Builder()

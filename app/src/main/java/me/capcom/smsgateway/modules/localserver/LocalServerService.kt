@@ -11,10 +11,7 @@ import me.capcom.smsgateway.modules.localserver.events.IPReceivedEvent
 import me.capcom.smsgateway.providers.LocalIPProvider
 import me.capcom.smsgateway.providers.PublicIPProvider
 
-class LocalServerService(
-    private val settings: LocalServerSettings,
-    private val events: EventBus,
-) {
+class LocalServerService(private val settings: LocalServerSettings, private val events: EventBus) {
 
     private fun getDeviceId(context: Context): String {
         val firstInstallTime = context.packageManager.getPackageInfo(

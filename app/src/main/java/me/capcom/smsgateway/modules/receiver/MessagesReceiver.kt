@@ -7,19 +7,21 @@ import android.content.IntentFilter
 import android.os.Build
 import android.provider.Telephony.Sms.Intents
 import android.util.Log
+import java.util.Date
 import me.capcom.smsgateway.extensions.setComponentEnabled
 import me.capcom.smsgateway.helpers.SubscriptionsHelper
 import me.capcom.smsgateway.modules.receiver.data.InboxMessage
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import java.util.Date
 
-class MessagesReceiver : BroadcastReceiver(), KoinComponent {
+class MessagesReceiver :
+    BroadcastReceiver(),
+    KoinComponent {
     private val receiverSvc: ReceiverService by inject()
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action != Intents.SMS_RECEIVED_ACTION
-            && intent.action != Intents.DATA_SMS_RECEIVED_ACTION
+        if (intent.action != Intents.SMS_RECEIVED_ACTION &&
+            intent.action != Intents.DATA_SMS_RECEIVED_ACTION
         ) {
             return
         }
@@ -63,7 +65,7 @@ class MessagesReceiver : BroadcastReceiver(), KoinComponent {
         receiverSvc.process(
             context,
             inboxMessage,
-            true,
+            true
         )
     }
 

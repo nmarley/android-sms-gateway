@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 @Entity(
     tableName = "gateway__inbox_upload",
     indices = [
-        Index(value = ["type", "message_id"], unique = true),
+        Index(value = ["type", "message_id"], unique = true)
     ]
 )
 data class InboxUploadEntity(
@@ -37,5 +37,5 @@ data class InboxUploadEntity(
     val contentEncrypted: String,
 
     @ColumnInfo(name = "attachments_encrypted", typeAffinity = ColumnInfo.TEXT)
-    val attachmentsEncrypted: String?,
+    val attachmentsEncrypted: String?
 )

@@ -57,7 +57,7 @@ class SSEForegroundService : Service() {
                         logsService.insert(
                             LogEntry.Priority.ERROR,
                             "SSEForegroundService",
-                            "Failed to start PullMessagesWorker on connect",
+                            "Failed to start PullMessagesWorker on connect"
                         )
                     }
                 }
@@ -105,9 +105,7 @@ class SSEForegroundService : Service() {
         return super.onStartCommand(intent, flags, startId)
     }
 
-    override fun onBind(intent: Intent): IBinder? {
-        return null
-    }
+    override fun onBind(intent: Intent): IBinder? = null
 
     private fun processEvent(event: String?, data: String) {
         val type = try {

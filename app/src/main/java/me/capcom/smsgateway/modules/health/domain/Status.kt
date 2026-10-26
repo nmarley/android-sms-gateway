@@ -10,5 +10,5 @@ enum class Status {
     WARN,
 
     @SerializedName("fail")
-    FAIL,
+    FAIL
 }

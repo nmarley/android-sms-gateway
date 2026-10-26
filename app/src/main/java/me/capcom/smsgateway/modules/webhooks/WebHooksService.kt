@@ -3,6 +3,7 @@ package me.capcom.smsgateway.modules.webhooks
 import android.content.Context
 import android.webkit.URLUtil
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils
+import java.net.URL
 import me.capcom.smsgateway.R
 import me.capcom.smsgateway.domain.EntitySource
 import me.capcom.smsgateway.helpers.BuildHelper
@@ -21,7 +22,6 @@ import me.capcom.smsgateway.modules.webhooks.workers.SendWebhookWorker
 import me.capcom.smsgateway.modules.webhooks.workers.WebhookQueueProcessorWorker
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
-import java.net.URL
 
 class WebHooksService(
     private val webHooksDao: WebHooksDao,
@@ -29,7 +29,7 @@ class WebHooksService(
     private val gatewaySettings: GatewaySettings,
     private val webhooksSettings: WebhooksSettings,
     private val notificationsService: NotificationsService,
-    private val logsService: LogsService,
+    private val logsService: LogsService
 ) : KoinComponent {
     private val eventsReceiver by lazy { EventsReceiver() }
 
@@ -45,19 +45,17 @@ class WebHooksService(
         eventsReceiver.stop()
     }
 
-    fun select(source: EntitySource?): List<WebHookDTO> {
-        return when (source) {
-            null -> webHooksDao.select()
-            else -> webHooksDao.selectBySource(source)
-        }.map {
-            WebHookDTO(
-                id = it.id,
-                deviceId = null,
-                url = it.url,
-                event = it.event,
-                source = it.source,
-            )
-        }
+    fun select(source: EntitySource?): List<WebHookDTO> = when (source) {
+        null -> webHooksDao.select()
+        else -> webHooksDao.selectBySource(source)
+    }.map {
+        WebHookDTO(
+            id = it.id,
+            deviceId = null,
+            url = it.url,
+            event = it.event,
+            source = it.source
+        )
     }
 
     fun sync(source: EntitySource, webHooks: List<WebHookDTO>) {
@@ -66,14 +64,17 @@ class WebHooksService(
             notifyUser()
         }
 
-        webHooksDao.replaceAll(source, webHooks.map {
-            WebHook(
-                id = requireNotNull(it.id) { "ID is required for sync" },
-                url = it.url,
-                event = it.event,
-                source = source,
-            )
-        })
+        webHooksDao.replaceAll(
+            source,
+            webHooks.map {
+                WebHook(
+                    id = requireNotNull(it.id) { "ID is required for sync" },
+                    url = it.url,
+                    event = it.event,
+                    source = source
+                )
+            }
+        )
     }
 
     fun replace(source: EntitySource, webHook: WebHookDTO): WebHookDTO {
@@ -82,13 +83,13 @@ class WebHooksService(
         val isLocalhost = isHttp && URL(webHook.url).host == "127.0.0.1"
 
         val isValidUrl = isHttps ||
-                (BuildHelper.isInsecureVersion && isHttp) ||
-                isLocalhost
+            (BuildHelper.isInsecureVersion && isHttp) ||
+            isLocalhost
 
         if (!isValidUrl) {
             throw IllegalArgumentException("url must start with https:// or http://127.0.0.1")
         }
-        
+
         if (webHook.event !in WebHookEvent.values()) {
             throw IllegalArgumentException(
                 "Unsupported event"
@@ -99,7 +100,7 @@ class WebHooksService(
             id = webHook.id ?: NanoIdUtils.randomNanoId(),
             url = webHook.url,
             event = webHook.event,
-            source = source,
+            source = source
         )
 
         val exists = webHooksDao.exists(source, webHookEntity.id)
@@ -115,7 +116,7 @@ class WebHooksService(
             deviceId = null,
             url = webHookEntity.url,
             event = webHookEntity.event,
-            source = webHookEntity.source,
+            source = webHookEntity.source
         )
     }
 
@@ -136,7 +137,8 @@ class WebHooksService(
                     return@forEach
                 }
 
-                (webhook.source == EntitySource.Cloud || webhook.source == EntitySource.Gateway) && !gatewaySettings.enabled -> {
+                (webhook.source == EntitySource.Cloud || webhook.source == EntitySource.Gateway) &&
+                    !gatewaySettings.enabled -> {
                     skippedCount++
                     return@forEach
                 }
@@ -157,7 +159,7 @@ class WebHooksService(
                     webhookId = webhook.id,
                     event = event,
                     deviceId = deviceId,
-                    payload = payload,
+                    payload = payload
                 )
 
                 SendWebhookWorker.start(

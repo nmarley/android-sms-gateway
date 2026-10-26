@@ -6,5 +6,5 @@ enum class CellularNetworkType {
     Mobile2G,
     Mobile3G,
     Mobile4G,
-    Mobile5G,
+    Mobile5G
 }

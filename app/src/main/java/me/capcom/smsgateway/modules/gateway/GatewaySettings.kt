@@ -5,12 +5,12 @@ import me.capcom.smsgateway.modules.settings.Importer
 import me.capcom.smsgateway.modules.settings.KeyValueStorage
 import me.capcom.smsgateway.modules.settings.get
 
-class GatewaySettings(
-    private val storage: KeyValueStorage,
-) : Exporter, Importer {
+class GatewaySettings(private val storage: KeyValueStorage) :
+    Exporter,
+    Importer {
     enum class NotificationChannel {
         AUTO,
-        SSE_ONLY,
+        SSE_ONLY
     }
 
     var enabled: Boolean
@@ -54,50 +54,46 @@ class GatewaySettings(
         const val PUBLIC_URL = "https://api.sms-gate.app/mobile/v1"
     }
 
-    override fun export(): Map<String, *> {
-        return mapOf(
-            CLOUD_URL to serverUrl,
-            NOTIFICATION_CHANNEL to notificationChannel.name,
-        )
-    }
+    override fun export(): Map<String, *> = mapOf(
+        CLOUD_URL to serverUrl,
+        NOTIFICATION_CHANNEL to notificationChannel.name
+    )
 
-    override fun import(data: Map<String, *>): Boolean {
-        return data.map {
-            when (it.key) {
-                CLOUD_URL -> {
-                    val url = it.value?.toString() ?: PUBLIC_URL
-                    if (url != null && !url.startsWith("https://")) {
-                        throw IllegalArgumentException("url must start with https://")
-                    }
-
-                    val changed = serverUrl != url
-
-                    storage.set(it.key, url)
-
-                    changed
+    override fun import(data: Map<String, *>): Boolean = data.map {
+        when (it.key) {
+            CLOUD_URL -> {
+                val url = it.value?.toString() ?: PUBLIC_URL
+                if (url != null && !url.startsWith("https://")) {
+                    throw IllegalArgumentException("url must start with https://")
                 }
 
-                PRIVATE_TOKEN -> {
-                    val newValue = it.value?.toString()
-                    val changed = privateToken != newValue
+                val changed = serverUrl != url
 
-                    storage.set(it.key, newValue)
+                storage.set(it.key, url)
 
-                    changed
-                }
-
-                NOTIFICATION_CHANNEL -> {
-                    val newValue = it.value?.let { NotificationChannel.valueOf(it.toString()) }
-                        ?: NotificationChannel.AUTO
-                    val changed = notificationChannel != newValue
-
-                    storage.set(it.key, newValue.name)
-
-                    changed
-                }
-
-                else -> false
+                changed
             }
-        }.any { it }
-    }
+
+            PRIVATE_TOKEN -> {
+                val newValue = it.value?.toString()
+                val changed = privateToken != newValue
+
+                storage.set(it.key, newValue)
+
+                changed
+            }
+
+            NOTIFICATION_CHANNEL -> {
+                val newValue = it.value?.let { NotificationChannel.valueOf(it.toString()) }
+                    ?: NotificationChannel.AUTO
+                val changed = notificationChannel != newValue
+
+                storage.set(it.key, newValue.name)
+
+                changed
+            }
+
+            else -> false
+        }
+    }.any { it }
 }

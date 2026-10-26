@@ -1,3 +1,5 @@
+@file:Suppress("ktlint:standard:function-naming")
+
 package me.capcom.smsgateway.data.dao
 
 import androidx.lifecycle.LiveData
@@ -6,6 +8,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import java.util.Date
 import me.capcom.smsgateway.data.entities.Message
 import me.capcom.smsgateway.data.entities.MessageRecipient
 import me.capcom.smsgateway.data.entities.MessageState
@@ -15,15 +18,18 @@ import me.capcom.smsgateway.data.entities.MessagesTotals
 import me.capcom.smsgateway.data.entities.RecipientState
 import me.capcom.smsgateway.domain.EntitySource
 import me.capcom.smsgateway.domain.ProcessingState
-import java.util.Date
 
 @Dao
 interface MessagesDao {
-    //#region Read
-    @Query("SELECT COUNT(*) as count, MAX(processedAt) as lastTimestamp FROM message WHERE state NOT IN ('Pending', 'Cancelling', 'Cancelled', 'Failed') AND processedAt >= :timestamp")
+    // #region Read
+    @Query(
+        "SELECT COUNT(*) as count, MAX(processedAt) as lastTimestamp FROM message WHERE state NOT IN ('Pending', 'Cancelling', 'Cancelled', 'Failed') AND processedAt >= :timestamp"
+    )
     fun countProcessedFrom(timestamp: Long): MessagesStats
 
-    @Query("SELECT COUNT(*) as count, MAX(processedAt) as lastTimestamp FROM message WHERE state = 'Failed' AND processedAt >= :timestamp")
+    @Query(
+        "SELECT COUNT(*) as count, MAX(processedAt) as lastTimestamp FROM message WHERE state = 'Failed' AND processedAt >= :timestamp"
+    )
     fun countFailedFrom(timestamp: Long): MessagesStats
 
     @Query(
@@ -44,27 +50,37 @@ interface MessagesDao {
     @Query("SELECT * FROM message ORDER BY createdAt DESC LIMIT :limit")
     fun selectLast(limit: Int): LiveData<List<Message>>
 
-    @Query("SELECT * FROM message WHERE ((:state IS NULL AND state NOT IN ('Processed', 'Cancelling')) OR state = :state) ORDER BY createdAt DESC LIMIT :limit")
+    @Query(
+        "SELECT * FROM message WHERE ((:state IS NULL AND state NOT IN ('Processed', 'Cancelling')) OR state = :state) ORDER BY createdAt DESC LIMIT :limit"
+    )
     fun selectLastFiltered(limit: Int, state: String? = null): LiveData<List<Message>>
 
     /**
      * FIFO: oldest pending first (priority DESC, createdAt ASC)
      */
     @Transaction
-    @Query("SELECT *, `rowid` FROM message WHERE state = 'Pending' AND (scheduleAt IS NULL OR scheduleAt <= :now) ORDER BY priority DESC, createdAt ASC LIMIT 1")
+    @Query(
+        "SELECT *, `rowid` FROM message WHERE state = 'Pending' AND (scheduleAt IS NULL OR scheduleAt <= :now) ORDER BY priority DESC, createdAt ASC LIMIT 1"
+    )
     fun getPendingFifo(now: Date): MessageWithRecipients?
 
     /**
      * LIFO: newest pending first (priority DESC, createdAt DESC)
      */
     @Transaction
-    @Query("SELECT *, `rowid` FROM message WHERE state = 'Pending' AND (scheduleAt IS NULL OR scheduleAt <= :now) ORDER BY priority DESC, createdAt DESC LIMIT 1")
+    @Query(
+        "SELECT *, `rowid` FROM message WHERE state = 'Pending' AND (scheduleAt IS NULL OR scheduleAt <= :now) ORDER BY priority DESC, createdAt DESC LIMIT 1"
+    )
     fun getPendingLifo(now: Date): MessageWithRecipients?
 
-    @Query("SELECT strftime('%s', MIN(COALESCE(`scheduleAt`, '1970-01-01T00:00:00.000Z'))) * 1000 FROM Message WHERE state = 'Pending'")
+    @Query(
+        "SELECT strftime('%s', MIN(COALESCE(`scheduleAt`, '1970-01-01T00:00:00.000Z'))) * 1000 FROM Message WHERE state = 'Pending'"
+    )
     fun nextScheduledTime(): Long?
 
-    @Query("SELECT COUNT(*) FROM message WHERE state = 'Pending' AND priority >= :minPriority AND (scheduleAt IS NULL OR scheduleAt <= :now)")
+    @Query(
+        "SELECT COUNT(*) FROM message WHERE state = 'Pending' AND priority >= :minPriority AND (scheduleAt IS NULL OR scheduleAt <= :now)"
+    )
     fun countExpeditedDue(minPriority: Byte, now: Date): Int
 
     @Transaction
@@ -74,14 +90,18 @@ interface MessagesDao {
     /**
      * Count messages based on state and date range
      */
-    @Query("SELECT COUNT(*) as count FROM message WHERE source = :source AND (:state IS NULL OR state = :state) AND createdAt BETWEEN :start AND :end")
+    @Query(
+        "SELECT COUNT(*) as count FROM message WHERE source = :source AND (:state IS NULL OR state = :state) AND createdAt BETWEEN :start AND :end"
+    )
     fun count(source: EntitySource, state: ProcessingState?, start: Long, end: Long): Int
 
     /**
      * Get messages with pagination and filtering
      */
     @Transaction
-    @Query("SELECT *, `rowid` FROM message WHERE source = :source AND (:state IS NULL OR state = :state) AND createdAt BETWEEN :start AND :end ORDER BY createdAt DESC LIMIT :limit OFFSET :offset")
+    @Query(
+        "SELECT *, `rowid` FROM message WHERE source = :source AND (:state IS NULL OR state = :state) AND createdAt BETWEEN :start AND :end ORDER BY createdAt DESC LIMIT :limit OFFSET :offset"
+    )
     fun selectDescending(
         source: EntitySource,
         state: ProcessingState?,
@@ -95,7 +115,9 @@ interface MessagesDao {
      * Get messages with pagination, filtering and ascending sort
      */
     @Transaction
-    @Query("SELECT *, `rowid` FROM message WHERE source = :source AND (:state IS NULL OR state = :state) AND createdAt BETWEEN :start AND :end ORDER BY createdAt ASC, id ASC LIMIT :limit OFFSET :offset")
+    @Query(
+        "SELECT *, `rowid` FROM message WHERE source = :source AND (:state IS NULL OR state = :state) AND createdAt BETWEEN :start AND :end ORDER BY createdAt ASC, id ASC LIMIT :limit OFFSET :offset"
+    )
     fun selectAscending(
         source: EntitySource,
         state: ProcessingState?,
@@ -104,7 +126,7 @@ interface MessagesDao {
         limit: Int,
         offset: Int
     ): List<MessageWithRecipients>
-    //#endregion
+    // #endregion
 
     @Insert
     fun _insert(message: Message)
@@ -120,14 +142,11 @@ interface MessagesDao {
 
     @Query(
         "INSERT INTO recipientstate(messageId, phoneNumber, state, updatedAt) " +
-                "SELECT :messageId, phoneNumber, :state, strftime('%s', 'now') * 1000 " +
-                "FROM messagerecipient " +
-                "WHERE messageId = :messageId"
+            "SELECT :messageId, phoneNumber, :state, strftime('%s', 'now') * 1000 " +
+            "FROM messagerecipient " +
+            "WHERE messageId = :messageId"
     )
-    fun _insertRecipientStatesByMessage(
-        messageId: String,
-        state: ProcessingState
-    )
+    fun _insertRecipientStatesByMessage(messageId: String, state: ProcessingState)
 
     @Transaction
     fun insert(message: MessageWithRecipients) {
@@ -140,14 +159,16 @@ interface MessagesDao {
             )
         )
         _insertRecipients(message.recipients)
-        _insertRecipientStates(message.recipients.map {
-            RecipientState(
-                message.message.id,
-                it.phoneNumber,
-                it.state,
-                System.currentTimeMillis()
-            )
-        })
+        _insertRecipientStates(
+            message.recipients.map {
+                RecipientState(
+                    message.message.id,
+                    it.phoneNumber,
+                    it.state,
+                    System.currentTimeMillis()
+                )
+            }
+        )
     }
 
     @Query("UPDATE message SET state = :state WHERE id = :id AND state <> 'Failed'")
@@ -170,24 +191,18 @@ interface MessagesDao {
         )
     }
 
-    @Query("UPDATE message SET state = 'Processed', processedAt = strftime('%s', 'now') * 1000 WHERE id = :id AND state <> 'Failed'")
+    @Query(
+        "UPDATE message SET state = 'Processed', processedAt = strftime('%s', 'now') * 1000 WHERE id = :id AND state <> 'Failed'"
+    )
     suspend fun _setMessageProcessed(id: String)
 
-    @Query("UPDATE messagerecipient SET state = :state, error = :error WHERE messageId = :id AND phoneNumber = :phoneNumber AND state <> 'Failed'")
-    fun _updateRecipientState(
-        id: String,
-        phoneNumber: String,
-        state: ProcessingState,
-        error: String?
+    @Query(
+        "UPDATE messagerecipient SET state = :state, error = :error WHERE messageId = :id AND phoneNumber = :phoneNumber AND state <> 'Failed'"
     )
+    fun _updateRecipientState(id: String, phoneNumber: String, state: ProcessingState, error: String?)
 
     @Transaction
-    fun updateRecipientState(
-        id: String,
-        phoneNumber: String,
-        state: ProcessingState,
-        error: String?
-    ) {
+    fun updateRecipientState(id: String, phoneNumber: String, state: ProcessingState, error: String?) {
         _updateRecipientState(id, phoneNumber, state, error)
         _insertRecipientStates(
             listOf(
@@ -197,18 +212,10 @@ interface MessagesDao {
     }
 
     @Query("UPDATE messagerecipient SET state = :state, error = :error WHERE messageId = :id AND state <> 'Failed'")
-    fun _updateRecipientsState(
-        id: String,
-        state: ProcessingState,
-        error: String?
-    )
+    fun _updateRecipientsState(id: String, state: ProcessingState, error: String?)
 
     @Transaction
-    fun updateRecipientsState(
-        id: String,
-        state: ProcessingState,
-        error: String?
-    ) {
+    fun updateRecipientsState(id: String, state: ProcessingState, error: String?) {
         _updateRecipientsState(id, state, error)
         _insertRecipientStatesByMessage(id, state)
     }
@@ -226,10 +233,7 @@ interface MessagesDao {
     }
 
     @Query("UPDATE message SET simNumber = :simNumber WHERE id = :id")
-    fun updateSimNumber(
-        id: String,
-        simNumber: Int
-    )
+    fun updateSimNumber(id: String, simNumber: Int)
 
     @Query("UPDATE message SET partsCount = :partsCount WHERE id = :id")
     fun updatePartsCount(id: String, partsCount: Int)

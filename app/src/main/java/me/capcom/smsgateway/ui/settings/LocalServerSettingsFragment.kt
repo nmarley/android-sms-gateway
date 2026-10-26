@@ -64,7 +64,10 @@ class LocalServerSettingsFragment : BasePreferenceFragment() {
             true
         }
 
-        findPreference<EditTextPreference>("localserver.JWT_TTL_SECONDS")?.setOnPreferenceChangeListener { _, newValue ->
+        findPreference<EditTextPreference>("localserver.JWT_TTL_SECONDS")?.setOnPreferenceChangeListener {
+                _,
+                newValue
+            ->
             val value = newValue as? String
             val ttl = value?.toLongOrNull()
             if (ttl == null || ttl <= 0 || ttl > LocalServerSettings.MAX_JWT_TTL_SECONDS) {
@@ -77,8 +80,8 @@ class LocalServerSettingsFragment : BasePreferenceFragment() {
     }
 
     override fun onDisplayPreferenceDialog(preference: Preference) {
-        if (preference.key == "localserver.PORT"
-            || preference.key == "localserver.JWT_TTL_SECONDS"
+        if (preference.key == "localserver.PORT" ||
+            preference.key == "localserver.JWT_TTL_SECONDS"
         ) {
             (preference as EditTextPreference).setOnBindEditTextListener {
                 it.inputType = InputType.TYPE_CLASS_NUMBER
@@ -87,8 +90,8 @@ class LocalServerSettingsFragment : BasePreferenceFragment() {
             }
         }
 
-        if (preference.key == "localserver.PASSWORD"
-            || preference.key == "localserver.USERNAME"
+        if (preference.key == "localserver.PASSWORD" ||
+            preference.key == "localserver.USERNAME"
         ) {
             (preference as EditTextPreference).setOnBindEditTextListener {
                 it.inputType = InputType.TYPE_CLASS_TEXT

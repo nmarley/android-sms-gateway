@@ -26,6 +26,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.userAgent
 import io.ktor.serialization.gson.gson
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.runBlocking
 import me.capcom.smsgateway.BuildConfig
 import me.capcom.smsgateway.R
@@ -43,14 +44,14 @@ import org.json.JSONException
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import org.koin.core.component.inject
-import java.util.concurrent.TimeUnit
 
 /**
  * Worker that sends webhook payloads to a URL.
  * @deprecated Remove after 2026-11-30
  */
 class SendWebhookWorker(appContext: Context, params: WorkerParameters) :
-    CoroutineWorker(appContext, params), KoinComponent {
+    CoroutineWorker(appContext, params),
+    KoinComponent {
 
     private val notificationsSvc: NotificationsService by inject()
     private val logsSvc: LogsService by inject()
@@ -71,7 +72,7 @@ class SendWebhookWorker(appContext: Context, params: WorkerParameters) :
                 message = "Empty payload",
                 context = mapOf(
                     "url" to inputData.getString(INPUT_URL),
-                    "storageKey" to inputData.getString(INPUT_STORAGE_KEY),
+                    "storageKey" to inputData.getString(INPUT_STORAGE_KEY)
                 )
             )
             return ListenableWorker.Result.failure()
@@ -85,7 +86,7 @@ class SendWebhookWorker(appContext: Context, params: WorkerParameters) :
                     message = "Webhook sent successfully",
                     context = mapOf(
                         "url" to inputData.getString(INPUT_URL),
-                        "data" to payload,
+                        "data" to payload
                     )
                 )
 
@@ -102,7 +103,7 @@ class SendWebhookWorker(appContext: Context, params: WorkerParameters) :
                     message = "Webhook failed: ${result.error}",
                     context = mapOf(
                         "url" to inputData.getString(INPUT_URL),
-                        "data" to payload,
+                        "data" to payload
                     )
                 )
 
@@ -119,7 +120,7 @@ class SendWebhookWorker(appContext: Context, params: WorkerParameters) :
                     message = "Webhook failed with retry: ${result.reason}",
                     context = mapOf(
                         "url" to inputData.getString(INPUT_URL),
-                        "data" to payload,
+                        "data" to payload
                     )
                 )
                 ListenableWorker.Result.retry()
@@ -164,9 +165,7 @@ class SendWebhookWorker(appContext: Context, params: WorkerParameters) :
         return Result.Success
     }
 
-    override suspend fun getForegroundInfo(): ForegroundInfo {
-        return createForegroundInfo()
-    }
+    override suspend fun getForegroundInfo(): ForegroundInfo = createForegroundInfo()
 
     // Creates an instance of ForegroundInfo which can be used to update the
     // ongoing notification.
@@ -209,12 +208,7 @@ class SendWebhookWorker(appContext: Context, params: WorkerParameters) :
     companion object : KoinComponent {
         private val gson = GsonBuilder().configure().create()
 
-        fun start(
-            context: Context,
-            url: String,
-            data: WebHookEventDTO,
-            internetRequired: Boolean,
-        ) {
+        fun start(context: Context, url: String, data: WebHookEventDTO, internetRequired: Boolean) {
             val logsService = get<LogsService>()
 
             // Enqueue the webhook event to the persistent queue
@@ -225,7 +219,7 @@ class SendWebhookWorker(appContext: Context, params: WorkerParameters) :
                 val queueId = runBlocking {
                     queueRepository.enqueueWebhook(
                         url = url,
-                        payload = gson.toJson(data),
+                        payload = gson.toJson(data)
                     )
                 }
 
@@ -245,7 +239,6 @@ class SendWebhookWorker(appContext: Context, params: WorkerParameters) :
                     context = context,
                     internetRequired = internetRequired
                 )
-
             } catch (e: Exception) {
                 // Fallback to direct processing if queue enqueue fails
                 logsService.insert(
@@ -266,7 +259,7 @@ class SendWebhookWorker(appContext: Context, params: WorkerParameters) :
                     .setInputData(
                         workDataOf(
                             INPUT_URL to url,
-                            INPUT_STORAGE_KEY to data.id,
+                            INPUT_STORAGE_KEY to data.id
                         )
                     )
                     .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)

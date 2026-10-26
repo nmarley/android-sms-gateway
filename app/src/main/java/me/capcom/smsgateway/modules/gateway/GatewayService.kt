@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Build
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.http.HttpStatusCode
+import java.util.Date
 import me.capcom.smsgateway.domain.EntitySource
 import me.capcom.smsgateway.domain.MessageContent
 import me.capcom.smsgateway.domain.ProcessingState
@@ -27,7 +28,6 @@ import me.capcom.smsgateway.modules.messages.MessagesSettings
 import me.capcom.smsgateway.modules.messages.data.SendParams
 import me.capcom.smsgateway.modules.messages.data.SendRequest
 import me.capcom.smsgateway.modules.receiver.data.InboxMessage
-import java.util.Date
 
 class GatewayService(
     private val inboxUploadService: InboxUploadService,
@@ -35,7 +35,7 @@ class GatewayService(
     private val settings: GatewaySettings,
     private val events: EventBus,
     private val logsService: LogsService,
-    private val deviceService: DeviceService,
+    private val deviceService: DeviceService
 ) {
     private val eventsReceiver by lazy { EventsReceiver() }
 
@@ -105,17 +105,14 @@ class GatewayService(
             DeviceRegisteredEvent.Success(
                 api.hostname,
                 info.login,
-                new,
+                new
             )
         )
     }
     //endregion
 
     //region Device
-    internal suspend fun registerDevice(
-        context: Context,
-        registerMode: RegistrationMode
-    ) {
+    internal suspend fun registerDevice(context: Context, registerMode: RegistrationMode) {
         if (!settings.enabled) return
 
         val settings = settings.registrationInfo
@@ -143,7 +140,7 @@ class GatewayService(
                 null,
                 simCards.toDTO(),
                 publicKey = keyInfo?.publicKeyBase64,
-                keyVersion = keyInfo?.keyVersion,
+                keyVersion = keyInfo?.keyVersion
             )
             val response = when (registerMode) {
                 RegistrationMode.Anonymous -> api.deviceRegister(request, null)
@@ -160,7 +157,7 @@ class GatewayService(
                 DeviceRegisteredEvent.Success(
                     api.hostname,
                     response.login,
-                    response.password,
+                    response.password
                 )
             )
         } catch (th: Throwable) {
@@ -190,7 +187,7 @@ class GatewayService(
                 null,
                 encryptionKey?.publicKeyBase64,
                 encryptionKey?.keyVersion,
-                simCards.toDTO(),
+                simCards.toDTO()
             )
         )
 
@@ -198,7 +195,7 @@ class GatewayService(
             DeviceRegisteredEvent.Success(
                 api.hostname,
                 settings.login,
-                settings.password,
+                settings.password
             )
         )
     }
@@ -209,7 +206,7 @@ class GatewayService(
             it.simNumber,
             it.phoneNumber.redact(),
             it.carrierName.redact(),
-            it.iccid.redact(),
+            it.iccid.redact()
         )
     }
 
@@ -239,7 +236,7 @@ class GatewayService(
                     "Failed to process message",
                     mapOf(
                         "message" to message,
-                        "exception" to th.stackTraceToString(),
+                        "exception" to th.stackTraceToString()
                     )
                 )
                 th.printStackTrace()
@@ -285,14 +282,14 @@ class GatewayService(
                             MessageContent.Mms.Attachment(
                                 contentType = it.contentType,
                                 name = it.name,
-                                data = it.data,
+                                data = it.data
                             )
                         }
                     )
                 },
                 message.phoneNumbers,
                 message.isEncrypted ?: false,
-                message.createdAt ?: Date(),
+                message.createdAt ?: Date()
             ),
             SendParams(
                 message.withDeliveryReport ?: true,
@@ -300,15 +297,13 @@ class GatewayService(
                 simNumber = message.simNumber,
                 validUntil = message.validUntil,
                 scheduleAt = message.scheduleAt,
-                priority = message.priority,
+                priority = message.priority
             )
         )
         messagesService.enqueueMessage(request)
     }
 
-    internal suspend fun sendState(
-        request: GatewayApi.MessagePatchRequest
-    ) {
+    internal suspend fun sendState(request: GatewayApi.MessagePatchRequest) {
         val settings = settings.registrationInfo ?: return
 
         api.patchMessages(
@@ -325,14 +320,19 @@ class GatewayService(
         sender: String,
         recipient: String?,
         simNumber: Int?,
-        date: Date,
+        date: Date
     ) {
         if (!settings.enabled) {
             return
         }
 
         inboxUploadService.enqueue(
-            context, message, sender, recipient, simNumber, date
+            context,
+            message,
+            sender,
+            recipient,
+            simNumber,
+            date
         )
     }
 
@@ -364,14 +364,12 @@ class GatewayService(
     //endregion
 
     //region Utility
-    suspend fun getPublicIP(): String {
-        return GatewayApi(
-            settings.serverUrl,
-            settings.privateToken
-        )
-            .getDevice(settings.registrationInfo?.token)
-            .externalIp
-    }
+    suspend fun getPublicIP(): String = GatewayApi(
+        settings.serverUrl,
+        settings.privateToken
+    )
+        .getDevice(settings.registrationInfo?.token)
+        .externalIp
     //endregion
 
     private fun String?.redact(): String? = when {

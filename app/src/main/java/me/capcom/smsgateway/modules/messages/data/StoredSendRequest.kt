@@ -11,5 +11,4 @@ class StoredSendRequest(
     source: EntitySource,
     message: Message,
     params: SendParams
-) :
-    SendRequest(source, message, params)
+) : SendRequest(source, message, params)

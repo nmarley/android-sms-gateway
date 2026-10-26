@@ -31,7 +31,7 @@ class MmsContentObserver : KoinComponent {
             logsService.insert(
                 LogEntry.Priority.WARN,
                 MODULE_NAME,
-                "MMS inbox observer not started because READ_SMS is not granted",
+                "MMS inbox observer not started because READ_SMS is not granted"
             )
             return
         }
@@ -56,7 +56,7 @@ class MmsContentObserver : KoinComponent {
         context.contentResolver.registerContentObserver(
             Uri.parse("content://mms"),
             true,
-            obs,
+            obs
         )
 
         // Catch up rows that arrived while the app process was stopped or before
@@ -79,7 +79,8 @@ class MmsContentObserver : KoinComponent {
             context.contentResolver.query(
                 Uri.parse("content://mms"),
                 arrayOf("_id"),
-                null, null,
+                null,
+                null,
                 "_id DESC LIMIT 1"
             )
         } catch (e: SecurityException) {
@@ -87,7 +88,7 @@ class MmsContentObserver : KoinComponent {
                 LogEntry.Priority.WARN,
                 MODULE_NAME,
                 "Unable to initialize MMS inbox high-water mark because provider access was denied",
-                mapOf("error" to (e.message ?: e.toString())),
+                mapOf("error" to (e.message ?: e.toString()))
             )
             return 0
         } ?: return 0
@@ -102,7 +103,7 @@ class MmsContentObserver : KoinComponent {
             logsService.insert(
                 LogEntry.Priority.WARN,
                 MODULE_NAME,
-                "Skipping MMS inbox processing because READ_SMS is not granted",
+                "Skipping MMS inbox processing because READ_SMS is not granted"
             )
             return
         }
@@ -122,7 +123,7 @@ class MmsContentObserver : KoinComponent {
                 LogEntry.Priority.WARN,
                 MODULE_NAME,
                 "Skipping MMS inbox processing because provider access was denied",
-                mapOf("error" to (e.message ?: e.toString())),
+                mapOf("error" to (e.message ?: e.toString()))
             )
             return
         } ?: return
@@ -137,7 +138,7 @@ class MmsContentObserver : KoinComponent {
                         LogEntry.Priority.ERROR,
                         MODULE_NAME,
                         "Failed processing downloaded MMS (id=$mmsId)",
-                        mapOf("mmsId" to mmsId, "error" to (e.message ?: e.toString())),
+                        mapOf("mmsId" to mmsId, "error" to (e.message ?: e.toString()))
                     )
                 }
                 // Always advance mark to prevent one corrupt MMS from blocking the pipeline
@@ -153,14 +154,16 @@ class MmsContentObserver : KoinComponent {
         var message: MmsContentReader.MmsMessage? = null
         for (attempt in 1..MMS_DOWNLOAD_MAX_RETRIES) {
             message = MmsContentReader.read(context, mmsId) ?: return
-            val needsRetry = message.sender == "unknown" || (message.body.isNullOrBlank() && message.attachments.isEmpty())
+            val needsRetry =
+                message.sender == "unknown" || (message.body.isNullOrBlank() && message.attachments.isEmpty())
             if (!needsRetry) break
             if (attempt < MMS_DOWNLOAD_MAX_RETRIES) {
                 logsService.insert(
                     LogEntry.Priority.DEBUG,
                     MODULE_NAME,
-                    "MMS content incomplete (id=$mmsId, sender=${message.sender}, attachments=${message.attachments.size}), " +
-                            "retrying in ${MMS_DOWNLOAD_RETRY_DELAY_MS}ms (attempt $attempt/$MMS_DOWNLOAD_MAX_RETRIES)",
+                    "MMS content incomplete (id=$mmsId, " +
+                        "sender=${message.sender}, attachments=${message.attachments.size}), " +
+                        "retrying in ${MMS_DOWNLOAD_RETRY_DELAY_MS}ms (attempt $attempt/$MMS_DOWNLOAD_MAX_RETRIES)"
                 )
                 Thread.sleep(MMS_DOWNLOAD_RETRY_DELAY_MS)
             }
@@ -186,14 +189,14 @@ class MmsContentObserver : KoinComponent {
                     msg.date,
                     msg.subscriptionId
                 ),
-                true,
+                true
             )
         }
     }
 
     private fun canReadSms(): Boolean = ContextCompat.checkSelfPermission(
         context,
-        android.Manifest.permission.READ_SMS,
+        android.Manifest.permission.READ_SMS
     ) == PackageManager.PERMISSION_GRANTED
 
     companion object {

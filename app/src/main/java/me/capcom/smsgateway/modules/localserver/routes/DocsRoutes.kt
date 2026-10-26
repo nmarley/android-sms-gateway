@@ -15,9 +15,7 @@ import io.ktor.server.routing.get
 import io.ktor.util.pipeline.PipelineContext
 import java.io.IOException
 
-class DocsRoutes(
-    private val applicationContext: Context,
-) {
+class DocsRoutes(private val applicationContext: Context) {
 
     fun register(routing: Route) {
         routing.apply {

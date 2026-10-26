@@ -22,7 +22,7 @@ class SettingsService(
     pingSettings: PingSettings,
     logsSettings: LogsSettings,
     webhooksSettings: WebhooksSettings,
-    deviceSettings: DeviceSettings,
+    deviceSettings: DeviceSettings
 ) {
     private val settings = mapOf(
         "encryption" to encryptionSettings,
@@ -32,12 +32,10 @@ class SettingsService(
         "ping" to pingSettings,
         "logs" to logsSettings,
         "webhooks" to webhooksSettings,
-        "device" to deviceSettings,
+        "device" to deviceSettings
     )
 
-    fun getAll(): Map<String, *> {
-        return settings.mapValues { (it.value as? Exporter)?.export() }
-    }
+    fun getAll(): Map<String, *> = settings.mapValues { (it.value as? Exporter)?.export() }
 
     fun update(data: Map<String, *>) {
         if (data.isEmpty()) {

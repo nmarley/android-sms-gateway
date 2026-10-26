@@ -1,8 +1,8 @@
 package me.capcom.smsgateway.modules.encryption.providers
 
+import java.util.concurrent.ConcurrentHashMap
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
-import java.util.concurrent.ConcurrentHashMap
 
 object EncryptionProviderFactory : KoinComponent {
     private val providers = ConcurrentHashMap<String, EncryptionProvider>()
@@ -11,12 +11,14 @@ object EncryptionProviderFactory : KoinComponent {
         val resolved = algorithm ?: DEFAULT_ALGORITHM
 
         return providers[resolved]
-            ?: (when (resolved) {
-                PASSPHRASE_FORMAT -> LegacyPassphraseEncryptionProvider(get())
-                PASSPHRASE_FORMAT_V2 -> HardenedPassphraseEncryptionProvider(get())
-                RSA_FORMAT -> RSAEncryptionProvider(get())
-                else -> throw RuntimeException("Method is not supported")
-            }.also { providers[resolved] = it })
+            ?: (
+                when (resolved) {
+                    PASSPHRASE_FORMAT -> LegacyPassphraseEncryptionProvider(get())
+                    PASSPHRASE_FORMAT_V2 -> HardenedPassphraseEncryptionProvider(get())
+                    RSA_FORMAT -> RSAEncryptionProvider(get())
+                    else -> throw RuntimeException("Method is not supported")
+                }.also { providers[resolved] = it }
+                )
     }
 
     private const val PASSPHRASE_FORMAT = "aes-256-cbc/pbkdf2-sha1"

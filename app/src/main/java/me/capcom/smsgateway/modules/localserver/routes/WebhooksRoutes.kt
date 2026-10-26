@@ -17,7 +17,7 @@ import me.capcom.smsgateway.modules.webhooks.domain.WebHookDTO
 
 class WebhooksRoutes(
     private val webHooksService: WebHooksService,
-    private val localServerSettings: LocalServerSettings,
+    private val localServerSettings: LocalServerSettings
 ) {
     fun register(routing: Route) {
         routing.apply {

@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import me.capcom.smsgateway.receivers.BootReceiver
-import java.util.Locale
 
 class SettingsHelper(private val context: Context) {
     private val settings = PreferenceManager.getDefaultSharedPreferences(context)
@@ -21,7 +20,11 @@ class SettingsHelper(private val context: Context) {
             // enable broadcast receiver
             context.packageManager.setComponentEnabledSetting(
                 ComponentName(context, BootReceiver::class.java),
-                if (value) PackageManager.COMPONENT_ENABLED_STATE_ENABLED else PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                if (value) {
+                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                } else {
+                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+                },
                 PackageManager.DONT_KILL_APP
             )
 
@@ -31,8 +34,8 @@ class SettingsHelper(private val context: Context) {
     var language: String
         get() {
             return when (val stored = settings.getString(APP_LANGUAGE, "")) {
-                null, "system" -> ""   // keep legacy "system" compatible
-                else -> stored         // "" means "follow system"
+                null, "system" -> "" // keep legacy "system" compatible
+                else -> stored // "" means "follow system"
             }
         }
         set(value) = settings.edit(true) {
@@ -41,11 +44,11 @@ class SettingsHelper(private val context: Context) {
 
     private fun migrate() {
         // remove after 2025-11-28
-        val PREF_KEY_SERVER_TOKEN = "server_token"
-        if (settings.contains(PREF_KEY_SERVER_TOKEN)) {
+        val prefKeyServerToken = "server_token"
+        if (settings.contains(prefKeyServerToken)) {
             settings.edit(true) {
-                putString("localserver.PASSWORD", settings.getString(PREF_KEY_SERVER_TOKEN, null))
-                remove(PREF_KEY_SERVER_TOKEN)
+                putString("localserver.PASSWORD", settings.getString(prefKeyServerToken, null))
+                remove(prefKeyServerToken)
             }
         }
     }

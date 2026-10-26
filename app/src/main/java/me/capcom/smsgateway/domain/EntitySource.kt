@@ -5,5 +5,5 @@ enum class EntitySource {
     Cloud,
 
     @Deprecated("Not used anymore")
-    Gateway,
+    Gateway
 }

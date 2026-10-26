@@ -91,30 +91,22 @@ class PasswordPromptDialogFragment : DialogFragment() {
             message: String? = null,
             action: String? = null,
             payload: String? = null
-        ): PasswordPromptDialogFragment {
-            return PasswordPromptDialogFragment().apply {
-                arguments = Bundle().apply {
-                    message?.let { putString(ARG_MESSAGE, it) }
-                    action?.let { putString(ARG_ACTION, it) }
-                    payload?.let { putString(ARG_PAYLOAD, it) }
-                }
+        ): PasswordPromptDialogFragment = PasswordPromptDialogFragment().apply {
+            arguments = Bundle().apply {
+                message?.let { putString(ARG_MESSAGE, it) }
+                action?.let { putString(ARG_ACTION, it) }
+                payload?.let { putString(ARG_PAYLOAD, it) }
             }
         }
 
-        fun getPassword(data: Bundle): String? {
-            return if (data.getBoolean(KEY_CANCELED, false)) {
-                null
-            } else {
-                data.getString(KEY_PASSWORD)
-            }
+        fun getPassword(data: Bundle): String? = if (data.getBoolean(KEY_CANCELED, false)) {
+            null
+        } else {
+            data.getString(KEY_PASSWORD)
         }
 
-        fun getAction(data: Bundle): String? {
-            return data.getString(KEY_ACTION)
-        }
+        fun getAction(data: Bundle): String? = data.getString(KEY_ACTION)
 
-        fun getPayload(data: Bundle): String? {
-            return data.getString(KEY_PAYLOAD)
-        }
+        fun getPayload(data: Bundle): String? = data.getString(KEY_PAYLOAD)
     }
 }

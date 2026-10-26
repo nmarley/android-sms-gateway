@@ -11,18 +11,17 @@ import androidx.work.WorkManager
 import androidx.work.WorkRequest
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
+import java.util.concurrent.TimeUnit
 import me.capcom.smsgateway.App
 import me.capcom.smsgateway.modules.gateway.GatewayService
 import me.capcom.smsgateway.modules.logs.LogsService
 import me.capcom.smsgateway.modules.logs.db.LogEntry
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import java.util.concurrent.TimeUnit
 
-class RegistrationWorker(
-    appContext: Context,
-    params: WorkerParameters
-) : CoroutineWorker(appContext, params), KoinComponent {
+class RegistrationWorker(appContext: Context, params: WorkerParameters) :
+    CoroutineWorker(appContext, params),
+    KoinComponent {
     private val logsSvc: LogsService by inject()
 
     override suspend fun doWork(): Result {
@@ -68,7 +67,7 @@ class RegistrationWorker(
                 )
                 .setInputData(
                     workDataOf(
-                        DATA_IS_UPDATE to isUpdate,
+                        DATA_IS_UPDATE to isUpdate
                     )
                 )
                 .build()

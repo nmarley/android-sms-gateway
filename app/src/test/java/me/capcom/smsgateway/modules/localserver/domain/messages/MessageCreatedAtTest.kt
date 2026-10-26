@@ -1,5 +1,7 @@
 package me.capcom.smsgateway.modules.localserver.domain.messages
 
+import java.util.Date
+import me.capcom.smsgateway.data.entities.Message as EntityMessage
 import me.capcom.smsgateway.data.entities.MessageWithRecipients
 import me.capcom.smsgateway.domain.EntitySource
 import me.capcom.smsgateway.domain.ProcessingState
@@ -7,8 +9,6 @@ import me.capcom.smsgateway.modules.localserver.routes.toDomain
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
-import java.util.Date
-import me.capcom.smsgateway.data.entities.Message as EntityMessage
 
 class MessageCreatedAtTest {
 
@@ -25,7 +25,7 @@ class MessageCreatedAtTest {
         mmsMessage = null,
         hashedMessage = null,
         recipients = emptyList(),
-        states = emptyMap(),
+        states = emptyMap()
     )
 
     @Test
@@ -72,12 +72,12 @@ class MessageCreatedAtTest {
             priority = 0,
             source = EntitySource.Local,
             content = "",
-            createdAt = 1700000000000L,
+            createdAt = 1700000000000L
         )
         val mwr = MessageWithRecipients(
             message = entity,
             recipients = emptyList(),
-            states = emptyList(),
+            states = emptyList()
         )
 
         val result = mwr.toDomain(deviceId = "device-1", includeContent = false)

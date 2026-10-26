@@ -1,7 +1,7 @@
 package me.capcom.smsgateway.modules.encryption.providers
 
-import me.capcom.smsgateway.modules.settings.KeyValueStorage
 import java.lang.reflect.Type
+import me.capcom.smsgateway.modules.settings.KeyValueStorage
 
 internal class FakeStorage(private val passphrase: String) : KeyValueStorage {
     override fun <T> set(key: String, value: T) {}

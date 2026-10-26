@@ -6,18 +6,18 @@ import io.ktor.server.application.call
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
+import java.util.Date
 import me.capcom.smsgateway.helpers.SubscriptionsHelper
 import me.capcom.smsgateway.modules.device.DeviceService
 import me.capcom.smsgateway.modules.localserver.LocalServerSettings
 import me.capcom.smsgateway.modules.localserver.auth.AuthScopes
 import me.capcom.smsgateway.modules.localserver.auth.requireScope
 import me.capcom.smsgateway.modules.localserver.domain.Device
-import java.util.Date
 
 class DeviceRoutes(
     private val context: Context,
     private val deviceService: DeviceService,
-    private val settings: LocalServerSettings,
+    private val settings: LocalServerSettings
 ) {
     fun register(routing: Route) {
         routing.apply {
@@ -44,7 +44,7 @@ class DeviceRoutes(
                 createdAt = Date(firstInstallTime),
                 updatedAt = Date(),
                 lastSeen = Date(),
-                simCards = simCards,
+                simCards = simCards
             )
 
             call.respond(listOf(device))

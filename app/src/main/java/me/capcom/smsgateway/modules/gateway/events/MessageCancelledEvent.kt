@@ -16,7 +16,7 @@ class MessageCancelledEvent(val messageId: String) : AppEvent(NAME) {
             val obj = GsonBuilder().configure().create().fromJson(payload, Payload::class.java)
 
             return MessageCancelledEvent(
-                obj.messageId,
+                obj.messageId
             )
         }
 

@@ -18,9 +18,7 @@ import me.capcom.smsgateway.modules.logs.db.LogEntry
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-class ConnectionService(
-    private val context: Context
-) : KoinComponent {
+class ConnectionService(private val context: Context) : KoinComponent {
     private val _status = MutableLiveData(false)
     val status: LiveData<Boolean> = _status
 
@@ -43,15 +41,15 @@ class ConnectionService(
             super.onLost(network)
         }
 
-        override fun onCapabilitiesChanged(
-            network: Network,
-            networkCapabilities: NetworkCapabilities
-        ) {
+        override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
             val hasInternet =
-                networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                        && (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || networkCapabilities.hasCapability(
-                    NetworkCapabilities.NET_CAPABILITY_VALIDATED
-                ))
+                networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+                    (
+                        Build.VERSION.SDK_INT < Build.VERSION_CODES.M ||
+                            networkCapabilities.hasCapability(
+                                NetworkCapabilities.NET_CAPABILITY_VALIDATED
+                            )
+                        )
 
             if (_status.value == hasInternet) return
 
@@ -126,7 +124,7 @@ class ConnectionService(
                 result.add(TransportType.Cellular)
             }
 
-            return result;
+            return result
         }
 
     val cellularNetworkType: CellularNetworkType

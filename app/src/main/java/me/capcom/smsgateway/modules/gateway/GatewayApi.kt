@@ -20,16 +20,13 @@ import io.ktor.http.contentType
 import io.ktor.http.hostWithPort
 import io.ktor.serialization.gson.gson
 import io.ktor.util.encodeBase64
+import java.util.Date
 import me.capcom.smsgateway.BuildConfig
 import me.capcom.smsgateway.domain.ProcessingState
 import me.capcom.smsgateway.extensions.configure
 import me.capcom.smsgateway.modules.webhooks.domain.WebHookEvent
-import java.util.Date
 
-class GatewayApi(
-    private val baseUrl: String,
-    private val privateToken: String?
-) {
+class GatewayApi(private val baseUrl: String, private val privateToken: String?) {
     val hostname: String
         get() = Url(baseUrl).hostWithPort
 
@@ -45,36 +42,28 @@ class GatewayApi(
         expectSuccess = true
     }
 
-    suspend fun getDevice(token: String?): DeviceGetResponse {
-        return client.get("$baseUrl/device") {
-            token?.let { bearerAuth(it) }
-        }.body()
-    }
+    suspend fun getDevice(token: String?): DeviceGetResponse = client.get("$baseUrl/device") {
+        token?.let { bearerAuth(it) }
+    }.body()
 
     suspend fun deviceRegister(
         request: DeviceRegisterRequest,
         credentials: Pair<String, String>?
-    ): DeviceRegisterResponse {
-        return client.post("$baseUrl/device") {
-            when {
-                credentials != null -> basicAuth(credentials.first, credentials.second)
-                privateToken != null -> bearerAuth(privateToken)
-            }
-            contentType(ContentType.Application.Json)
-            setBody(request)
-        }.body()
-    }
+    ): DeviceRegisterResponse = client.post("$baseUrl/device") {
+        when {
+            credentials != null -> basicAuth(credentials.first, credentials.second)
+            privateToken != null -> bearerAuth(privateToken)
+        }
+        contentType(ContentType.Application.Json)
+        setBody(request)
+    }.body()
 
-    suspend fun deviceRegister(
-        request: DeviceRegisterRequest,
-        code: String
-    ): DeviceRegisterResponse {
-        return client.post("$baseUrl/device") {
+    suspend fun deviceRegister(request: DeviceRegisterRequest, code: String): DeviceRegisterResponse =
+        client.post("$baseUrl/device") {
             header("Authorization", "Code $code")
             contentType(ContentType.Application.Json)
             setBody(request)
         }.body()
-    }
 
     suspend fun devicePatch(token: String, request: DevicePatchRequest) {
         client.patch("$baseUrl/device") {
@@ -84,12 +73,11 @@ class GatewayApi(
         }
     }
 
-    suspend fun getMessages(token: String, processingOrder: ProcessingOrder): List<Message> {
-        return client.get("$baseUrl/message") {
+    suspend fun getMessages(token: String, processingOrder: ProcessingOrder): List<Message> =
+        client.get("$baseUrl/message") {
             parameter("order", processingOrder)
             bearerAuth(token)
         }.body()
-    }
 
     suspend fun patchMessages(token: String, request: List<MessagePatchRequest>) {
         client.patch("$baseUrl/message") {
@@ -107,17 +95,13 @@ class GatewayApi(
         }
     }
 
-    suspend fun getWebHooks(token: String): List<WebHook> {
-        return client.get("$baseUrl/webhooks") {
-            bearerAuth(token)
-        }.body()
-    }
+    suspend fun getWebHooks(token: String): List<WebHook> = client.get("$baseUrl/webhooks") {
+        bearerAuth(token)
+    }.body()
 
-    suspend fun getUserCode(credentials: Pair<String, String>): GetUserCodeResponse {
-        return client.get("$baseUrl/user/code") {
-            basicAuth(credentials.first, credentials.second)
-        }.body()
-    }
+    suspend fun getUserCode(credentials: Pair<String, String>): GetUserCodeResponse = client.get("$baseUrl/user/code") {
+        basicAuth(credentials.first, credentials.second)
+    }.body()
 
     suspend fun changeUserPassword(token: String, request: PasswordChangeRequest) {
         client.patch("$baseUrl/user/password") {
@@ -127,13 +111,11 @@ class GatewayApi(
         }
     }
 
-    suspend fun getSettings(token: String): Map<String, *> {
-        return client.get("$baseUrl/settings") {
-            bearerAuth(token)
-        }.body()
-    }
+    suspend fun getSettings(token: String): Map<String, *> = client.get("$baseUrl/settings") {
+        bearerAuth(token)
+    }.body()
 
-    ///////////////////////////////////////////////////////////////////////////
+    // /////////////////////////////////////////////////////////////////////////
     private fun HttpRequestBuilder.bearerAuth(token: String) {
         header(HttpHeaders.Authorization, "Bearer $token")
     }
@@ -142,32 +124,25 @@ class GatewayApi(
         header(HttpHeaders.Authorization, "Basic ${"$username:$password".encodeBase64()}")
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    data class DeviceGetResponse(
-        val externalIp: String,
-    )
+    // /////////////////////////////////////////////////////////////////////////
+    data class DeviceGetResponse(val externalIp: String)
 
     data class DeviceRegisterRequest(
         val name: String,
         val pushToken: String?,
         val simCards: List<SimCard>,
         val publicKey: String? = null,
-        val keyVersion: Int? = null,
+        val keyVersion: Int? = null
     )
 
-    data class DeviceRegisterResponse(
-        val id: String,
-        val token: String,
-        val login: String,
-        val password: String?,
-    )
+    data class DeviceRegisterResponse(val id: String, val token: String, val login: String, val password: String?)
 
     data class DevicePatchRequest(
         val id: String,
         val pushToken: String?,
         val publicKey: String?,
         val keyVersion: Int?,
-        val simCards: List<SimCard>?,
+        val simCards: List<SimCard>?
     )
 
     data class MessagePatchRequest(
@@ -177,26 +152,15 @@ class GatewayApi(
         val states: Map<ProcessingState, Date>
     )
 
-    data class PasswordChangeRequest(
-        val currentPassword: String,
-        val newPassword: String
-    )
+    data class PasswordChangeRequest(val currentPassword: String, val newPassword: String)
 
-    data class GetUserCodeResponse(
-        val code: String,
-        val validUntil: Date
-    )
+    data class GetUserCodeResponse(val code: String, val validUntil: Date)
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // //////////////////////////////////////////////////////////////////////////////////////////////
     sealed class MessageContent {
-        class Text(
-            val text: String,
-        ) : MessageContent()
+        class Text(val text: String) : MessageContent()
 
-        class Data(
-            val data: String,
-            val port: UShort,
-        ) : MessageContent()
+        class Data(val data: String, val port: UShort) : MessageContent()
 
         class Mms(
             val subject: String?,
@@ -205,16 +169,12 @@ class GatewayApi(
             // MMS), despite the non-null Kotlin type. Normalize via the
             // public accessor below so callers never see null.
             @SerializedName("attachments")
-            private val _attachments: List<Attachment>?,
+            private val _attachments: List<Attachment>?
         ) : MessageContent() {
             val attachments: List<Attachment>
                 get() = _attachments.orEmpty()
 
-            class Attachment(
-                val contentType: String,
-                val name: String?,
-                val data: String,
-            )
+            class Attachment(val contentType: String, val name: String?, val data: String)
         }
     }
 
@@ -237,7 +197,7 @@ class GatewayApi(
         val createdAt: Date?,
 
         @SerializedName("message")
-        val _message: String?,
+        val _message: String?
     ) {
         val content: MessageContent
             get() = this._dataMessage
@@ -247,11 +207,7 @@ class GatewayApi(
                 ?: throw RuntimeException("Invalid message content")
     }
 
-    data class RecipientState(
-        val phoneNumber: String,
-        val state: ProcessingState,
-        val error: String?,
-    )
+    data class RecipientState(val phoneNumber: String, val state: ProcessingState, val error: String?)
 
     /**
      * Wire-level message state as reported by the gateway server. Mirrors the
@@ -283,11 +239,7 @@ class GatewayApi(
         Failed
     }
 
-    data class WebHook(
-        val id: String,
-        val url: String,
-        val event: WebHookEvent,
-    )
+    data class WebHook(val id: String, val url: String, val event: WebHookEvent)
 
     enum class ProcessingOrder {
         @SerializedName("lifo")
@@ -296,9 +248,7 @@ class GatewayApi(
         @SerializedName("fifo")
         FIFO;
 
-        override fun toString(): String {
-            return this.name.lowercase()
-        }
+        override fun toString(): String = this.name.lowercase()
     }
 
     data class SimCard(
@@ -306,7 +256,7 @@ class GatewayApi(
         val simNumber: Int,
         val phoneNumber: String?,
         val carrierName: String?,
-        val iccid: String?,
+        val iccid: String?
     )
 
     object InboxMessageType {
@@ -325,7 +275,7 @@ class GatewayApi(
         val content: String,
         val isEncrypted: Boolean = true,
         val createdAt: Date,
-        val attachments: List<InboxMessageAttachment>?,
+        val attachments: List<InboxMessageAttachment>?
     )
 
     data class InboxMessageAttachment(
@@ -333,6 +283,7 @@ class GatewayApi(
         val contentType: String,
         val name: String,
         val size: Long?,
-        val data: String, // base64 of raw bytes
+        // base64 of raw bytes
+        val data: String
     )
 }

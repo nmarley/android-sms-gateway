@@ -16,7 +16,9 @@ import me.capcom.smsgateway.modules.messages.MessagesService
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-class EventsReceiver : BroadcastReceiver(), KoinComponent {
+class EventsReceiver :
+    BroadcastReceiver(),
+    KoinComponent {
 
     private val messagesService: MessagesService by inject()
     private val logsService: LogsService by inject()
@@ -45,7 +47,7 @@ class EventsReceiver : BroadcastReceiver(), KoinComponent {
         private val job = SupervisorJob()
         private val scope = CoroutineScope(job)
 
-        private var INSTANCE: EventsReceiver? = null
+        private var instance: EventsReceiver? = null
 
         const val ACTION_SENT = "me.capcom.smsgateway.ACTION_SENT"
         const val ACTION_DELIVERED = "me.capcom.smsgateway.ACTION_DELIVERED"
@@ -53,10 +55,8 @@ class EventsReceiver : BroadcastReceiver(), KoinComponent {
 
         const val EXTRA_MESSAGE_ID = "messageId"
         const val EXTRA_PDU_PATH = "pduPath"
-        
-        private fun getInstance(): EventsReceiver {
-            return INSTANCE ?: EventsReceiver().also { INSTANCE = it }
-        }
+
+        private fun getInstance(): EventsReceiver = instance ?: EventsReceiver().also { instance = it }
 
         fun register(context: Context) {
             val filter = IntentFilter(ACTION_SENT).apply {

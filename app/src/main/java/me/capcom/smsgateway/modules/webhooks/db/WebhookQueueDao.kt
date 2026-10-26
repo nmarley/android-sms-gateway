@@ -1,7 +1,10 @@
 package me.capcom.smsgateway.modules.webhooks.db
 
 import androidx.lifecycle.LiveData
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 
 /**
  * Data Access Object for webhook queue operations.
@@ -59,9 +62,7 @@ interface WebhookQueueDao {
         WHERE id = :id
     """
     )
-    suspend fun markAsProcessing(
-        id: String,
-    )
+    suspend fun markAsProcessing(id: String)
 
     /**
      * Update retry information and set next attempt time.
@@ -76,11 +77,7 @@ interface WebhookQueueDao {
         WHERE id = :id
     """
     )
-    suspend fun markAsFailed(
-        id: String,
-        nextAttempt: Long,
-        error: String?,
-    )
+    suspend fun markAsFailed(id: String, nextAttempt: Long, error: String?)
 
     /**
      * Mark webhook as completed.
@@ -92,9 +89,7 @@ interface WebhookQueueDao {
         WHERE id = :id
     """
     )
-    suspend fun markAsCompleted(
-        id: String,
-    )
+    suspend fun markAsCompleted(id: String)
 
     /**
      * Mark webhook as permanently failed.
@@ -106,10 +101,7 @@ interface WebhookQueueDao {
         WHERE id = :id
     """
     )
-    suspend fun markAsPermanentlyFailed(
-        id: String,
-        error: String,
-    )
+    suspend fun markAsPermanentlyFailed(id: String, error: String)
 
     /**
      * Get the most recent webhook queue entries for a single status (or all when null),
@@ -141,7 +133,9 @@ interface WebhookQueueDao {
     /**
      * Get IDs of old completed/permanently failed webhook entries
      */
-    @Query("SELECT id FROM webhook_queue WHERE status IN ('completed', 'permanently_failed') AND created_at < :cutoffTime")
+    @Query(
+        "SELECT id FROM webhook_queue WHERE status IN ('completed', 'permanently_failed') AND created_at < :cutoffTime"
+    )
     suspend fun getOldEntryIds(cutoffTime: Long): List<String>
 
     /**
@@ -166,7 +160,8 @@ interface WebhookQueueDao {
     """
     )
     suspend fun recoverStuckProcessingWebhooks(
-        timeoutThreshold: Long = System.currentTimeMillis() - (5 * 60 * 1000) // 5 minutes
+        // 5 minutes
+        timeoutThreshold: Long = System.currentTimeMillis() - (5 * 60 * 1000)
     )
 }
 

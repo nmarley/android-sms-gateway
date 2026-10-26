@@ -20,7 +20,7 @@ class MessageWithRecipientsTest {
             state = ProcessingState.Pending,
             createdAt = System.currentTimeMillis(),
             skipPhoneValidation = true,
-            priority = Message.PRIORITY_DEFAULT,
+            priority = Message.PRIORITY_DEFAULT
         )
         val recipients = listOf(
             MessageRecipient("1", "1234567890", ProcessingState.Pending, null),
@@ -45,7 +45,7 @@ class MessageWithRecipientsTest {
             state = ProcessingState.Pending,
             createdAt = System.currentTimeMillis(),
             skipPhoneValidation = true,
-            priority = Message.PRIORITY_DEFAULT,
+            priority = Message.PRIORITY_DEFAULT
         )
         val recipients = listOf(
             MessageRecipient("1", "1234567890", ProcessingState.Delivered, null),
@@ -70,7 +70,7 @@ class MessageWithRecipientsTest {
             state = ProcessingState.Pending,
             createdAt = System.currentTimeMillis(),
             skipPhoneValidation = true,
-            priority = Message.PRIORITY_DEFAULT,
+            priority = Message.PRIORITY_DEFAULT
         )
         val recipients = listOf(
             MessageRecipient("2", "1234567890", ProcessingState.Delivered, null),

@@ -8,7 +8,6 @@ import androidx.room.Transaction
 import me.capcom.smsgateway.domain.EntitySource
 import me.capcom.smsgateway.modules.webhooks.domain.WebHookEvent
 
-
 @Dao
 interface WebHooksDao {
 

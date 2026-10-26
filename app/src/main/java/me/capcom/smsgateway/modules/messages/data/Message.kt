@@ -1,7 +1,7 @@
 package me.capcom.smsgateway.modules.messages.data
 
-import me.capcom.smsgateway.domain.MessageContent
 import java.util.Date
+import me.capcom.smsgateway.domain.MessageContent
 
 data class Message(
     val id: String,
@@ -10,5 +10,5 @@ data class Message(
 
     val isEncrypted: Boolean,
 
-    val createdAt: Date,
+    val createdAt: Date
 )

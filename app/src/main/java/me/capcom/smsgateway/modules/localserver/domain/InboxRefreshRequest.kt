@@ -1,8 +1,8 @@
 package me.capcom.smsgateway.modules.localserver.domain
 
+import java.util.Date
 import me.capcom.smsgateway.domain.WebhookDelivery
 import me.capcom.smsgateway.modules.incoming.db.IncomingMessageType
-import java.util.Date
 
 data class InboxRefreshRequest(
     val since: Date,
@@ -10,7 +10,7 @@ data class InboxRefreshRequest(
     val messageTypes: Set<IncomingMessageType>? = null,
     @Deprecated("Replaced with webhookDelivery")
     val triggerWebhooks: Boolean? = null,
-    val webhookDelivery: WebhookDelivery? = null,
+    val webhookDelivery: WebhookDelivery? = null
 ) {
     val period: Pair<Date, Date>
         get() = since to until

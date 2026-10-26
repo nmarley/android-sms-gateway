@@ -29,7 +29,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 
-class App: Application() {
+class App : Application() {
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base?.let { LocaleHelper.onAttach(it) })
     }
@@ -58,7 +58,7 @@ class App: Application() {
                 pingModule,
                 connectionModule,
                 orchestratorModule,
-                deviceModule,
+                deviceModule
             )
         }
 

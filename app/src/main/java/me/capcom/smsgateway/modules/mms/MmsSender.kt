@@ -9,27 +9,25 @@ import android.telephony.SmsManager
 import android.util.Base64
 import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
+import java.io.File
+import java.security.MessageDigest
 import me.capcom.smsgateway.BuildConfig
 import me.capcom.smsgateway.domain.MessageContent
 import me.capcom.smsgateway.modules.mms.pdu.aosp.CharacterSets
 import me.capcom.smsgateway.modules.mms.pdu.aosp.EncodedStringValue
 import me.capcom.smsgateway.modules.mms.pdu.aosp.PduBody
+import me.capcom.smsgateway.modules.mms.pdu.aosp.PduComposer as AospPduComposer
 import me.capcom.smsgateway.modules.mms.pdu.aosp.PduPart
 import me.capcom.smsgateway.modules.mms.pdu.aosp.SendReq
 import me.capcom.smsgateway.receivers.EventsReceiver
-import java.io.File
-import java.security.MessageDigest
-import me.capcom.smsgateway.modules.mms.pdu.aosp.PduComposer as AospPduComposer
 
-class MmsSender(
-    private val context: Context,
-) {
+class MmsSender(private val context: Context) {
     fun send(
         messageId: String,
         phoneNumbers: List<String>,
         mms: MessageContent.Mms,
         subscriptionId: Int?,
-        fromMsisdn: String? = null,
+        fromMsisdn: String? = null
     ) {
         val req = buildSendReq(phoneNumbers, mms, fromMsisdn)
         val pdu = AospPduComposer(context, req).make()
@@ -43,10 +41,14 @@ class MmsSender(
         )
 
         context.grantUriPermission(
-            "com.android.phone", uri, Intent.FLAG_GRANT_READ_URI_PERMISSION
+            "com.android.phone",
+            uri,
+            Intent.FLAG_GRANT_READ_URI_PERMISSION
         )
         context.grantUriPermission(
-            "com.android.mms.service", uri, Intent.FLAG_GRANT_READ_URI_PERMISSION
+            "com.android.mms.service",
+            uri,
+            Intent.FLAG_GRANT_READ_URI_PERMISSION
         )
 
         val sentIntent = PendingIntent.getBroadcast(
@@ -80,11 +82,7 @@ class MmsSender(
         }
     }
 
-    private fun buildSendReq(
-        phoneNumbers: List<String>,
-        mms: MessageContent.Mms,
-        fromMsisdn: String?,
-    ): SendReq {
+    private fun buildSendReq(phoneNumbers: List<String>, mms: MessageContent.Mms, fromMsisdn: String?): SendReq {
         val req = SendReq()
 
         // Recipients
@@ -109,7 +107,7 @@ class MmsSender(
             part.charset = CharacterSets.UTF_8
             val name = "text_${index++}.txt"
             part.contentLocation = name.toByteArray()
-            part.contentId = "<${name}>".toByteArray()
+            part.contentId = "<$name>".toByteArray()
             part.name = name.toByteArray()
             part.data = text.toByteArray(Charsets.UTF_8)
             body.addPart(part)
@@ -122,7 +120,7 @@ class MmsSender(
             val part = PduPart()
             part.contentType = att.contentType.substringBefore(';').trim().toByteArray()
             part.contentLocation = name.toByteArray()
-            part.contentId = "<${name}>".toByteArray()
+            part.contentId = "<$name>".toByteArray()
             part.name = name.toByteArray()
             part.data = bytes
             body.addPart(part)
@@ -137,12 +135,10 @@ class MmsSender(
         return req
     }
 
-    private fun attachmentBytes(att: MessageContent.Mms.Attachment): ByteArray {
-        return try {
-            Base64.decode(att.data, Base64.DEFAULT)
-        } catch (e: IllegalArgumentException) {
-            throw IllegalArgumentException("Invalid base64 data for attachment", e)
-        }
+    private fun attachmentBytes(att: MessageContent.Mms.Attachment): ByteArray = try {
+        Base64.decode(att.data, Base64.DEFAULT)
+    } catch (e: IllegalArgumentException) {
+        throw IllegalArgumentException("Invalid base64 data for attachment", e)
     }
 
     private fun extensionFor(contentType: String): String {
@@ -158,34 +154,30 @@ class MmsSender(
         return file
     }
 
-    private fun pendingIntentFlags(): Int {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
-        } else {
-            PendingIntent.FLAG_UPDATE_CURRENT
-        }
+    private fun pendingIntentFlags(): Int = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+    } else {
+        PendingIntent.FLAG_UPDATE_CURRENT
     }
 
     @Suppress("DEPRECATION")
-    private fun getSmsManager(subscriptionId: Int?): SmsManager {
-        return when {
-            subscriptionId == null || subscriptionId < 0 -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    context.getSystemService(SmsManager::class.java)
-                } else {
-                    SmsManager.getDefault()
-                }
-            }
-
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
+    private fun getSmsManager(subscriptionId: Int?): SmsManager = when {
+        subscriptionId == null || subscriptionId < 0 -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 context.getSystemService(SmsManager::class.java)
-                    .createForSubscriptionId(subscriptionId)
-
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1 ->
-                SmsManager.getSmsManagerForSubscriptionId(subscriptionId)
-
-            else -> SmsManager.getDefault()
+            } else {
+                SmsManager.getDefault()
+            }
         }
+
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
+            context.getSystemService(SmsManager::class.java)
+                .createForSubscriptionId(subscriptionId)
+
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1 ->
+            SmsManager.getSmsManagerForSubscriptionId(subscriptionId)
+
+        else -> SmsManager.getDefault()
     }
 
     companion object {
@@ -194,9 +186,8 @@ class MmsSender(
             File(File(context.filesDir, "mms-out"), "${pduFileName(messageId)}.pdu").delete()
         }
 
-        private fun pduFileName(messageId: String): String =
-            MessageDigest.getInstance("SHA-256")
-                .digest(messageId.toByteArray(Charsets.UTF_8))
-                .joinToString("") { "%02x".format(it) }
+        private fun pduFileName(messageId: String): String = MessageDigest.getInstance("SHA-256")
+            .digest(messageId.toByteArray(Charsets.UTF_8))
+            .joinToString("") { "%02x".format(it) }
     }
 }

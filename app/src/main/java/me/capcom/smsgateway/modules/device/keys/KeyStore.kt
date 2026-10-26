@@ -14,10 +14,7 @@ import java.security.PrivateKey
 import java.util.Date
 import javax.security.auth.x500.X500Principal
 
-data class KeyPairResult(
-    val keyPair: KeyPair,
-    val publicKeyBase64: String,
-)
+data class KeyPairResult(val keyPair: KeyPair, val publicKeyBase64: String)
 
 /**
  * Keystore-only E2E key management on all API levels. AndroidKeyStore has
@@ -25,9 +22,7 @@ data class KeyPairResult(
  * [KeyPairGeneratorSpec], API 23+ with [KeyGenParameterSpec]. Private keys
  * never leave AndroidKeyStore and no software keys exist anywhere.
  */
-class KeyStore(
-    private val context: Context,
-) {
+class KeyStore(private val context: Context) {
 
     fun generateKeyPair(alias: String): KeyPairResult {
         val keyPair = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
@@ -37,21 +32,18 @@ class KeyStore(
         }
         return KeyPairResult(
             keyPair,
-            encodePublicKey(keyPair),
+            encodePublicKey(keyPair)
         )
     }
 
-    fun getPrivateKey(alias: String): PrivateKey? {
-        return getKeyFromKeystore(alias)
-    }
+    fun getPrivateKey(alias: String): PrivateKey? = getKeyFromKeystore(alias)
 
     fun delete(alias: String) {
         deleteKeyFromKeystore(alias)
     }
 
-    private fun encodePublicKey(keyPair: KeyPair): String {
-        return Base64.encodeToString(keyPair.public.encoded, Base64.NO_WRAP)
-    }
+    private fun encodePublicKey(keyPair: KeyPair): String =
+        Base64.encodeToString(keyPair.public.encoded, Base64.NO_WRAP)
 
     // -------------------------------------------------------------------------
     // API 23+ : AndroidKeyStore
@@ -61,11 +53,11 @@ class KeyStore(
     private fun generateKeyPairInKeystore(alias: String): KeyPair {
         val kpg = KeyPairGenerator.getInstance(
             KeyProperties.KEY_ALGORITHM_RSA,
-            ANDROID_KEYSTORE,
+            ANDROID_KEYSTORE
         )
         val spec = KeyGenParameterSpec.Builder(
             alias,
-            KeyProperties.PURPOSE_DECRYPT or KeyProperties.PURPOSE_ENCRYPT,
+            KeyProperties.PURPOSE_DECRYPT or KeyProperties.PURPOSE_ENCRYPT
         )
             .setKeySize(2048)
             .setBlockModes(KeyProperties.BLOCK_MODE_ECB)

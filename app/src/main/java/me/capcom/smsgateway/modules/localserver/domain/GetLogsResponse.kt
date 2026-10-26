@@ -1,8 +1,8 @@
 package me.capcom.smsgateway.modules.localserver.domain
 
 import com.google.gson.JsonElement
-import me.capcom.smsgateway.modules.logs.db.LogEntry
 import java.util.Date
+import me.capcom.smsgateway.modules.logs.db.LogEntry
 
 data class GetLogsResponse(
     val priority: LogEntry.Priority,
@@ -10,7 +10,7 @@ data class GetLogsResponse(
     val message: String,
     val id: Long = 0,
     val context: JsonElement? = null,
-    val createdAt: Date,
+    val createdAt: Date
 ) {
     companion object {
         fun from(log: LogEntry) = GetLogsResponse(

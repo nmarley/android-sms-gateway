@@ -17,7 +17,7 @@ class FirstStartDialogFragment : DialogFragment() {
     // This property is only valid between onCreateDialog and
     // onDestroyView.
     private val binding get() = _binding!!
-    
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         _binding = DialogFirstStartBinding.inflate(layoutInflater)
 
@@ -148,7 +148,7 @@ class FirstStartDialogFragment : DialogFragment() {
         Canceled,
         SignUp,
         SignIn,
-        SignInByCode,
+        SignInByCode
     }
 
     companion object {
@@ -165,8 +165,7 @@ class FirstStartDialogFragment : DialogFragment() {
 
         fun newInstance(): FirstStartDialogFragment = FirstStartDialogFragment()
 
-        fun getResult(data: Bundle): Result =
-            Result.valueOf(data.getString(KEY_RESULT_CODE) ?: Result.Canceled.name)
+        fun getResult(data: Bundle): Result = Result.valueOf(data.getString(KEY_RESULT_CODE) ?: Result.Canceled.name)
 
         fun getUsername(data: Bundle): String = requireNotNull(data.getString(KEY_USERNAME))
         fun getPassword(data: Bundle): String = requireNotNull(data.getString(KEY_PASSWORD))

@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Build
 import android.provider.Telephony
 import android.util.Base64
+import java.util.Date
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.capcom.smsgateway.domain.WebhookDelivery
@@ -25,7 +26,6 @@ import me.capcom.smsgateway.modules.webhooks.payload.SmsDataBatchReceivedPayload
 import me.capcom.smsgateway.modules.webhooks.payload.SmsEventPayload
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import java.util.Date
 
 class ReceiverService : KoinComponent {
     private val webHooksService: WebHooksService by inject()
@@ -60,7 +60,7 @@ class ReceiverService : KoinComponent {
         context: Context,
         period: Pair<Date, Date>,
         messageTypes: Set<IncomingMessageType>,
-        webhookDelivery: WebhookDelivery,
+        webhookDelivery: WebhookDelivery
     ) = withContext(Dispatchers.IO) {
         logsService.insert(
             LogEntry.Priority.DEBUG,
@@ -98,7 +98,6 @@ class ReceiverService : KoinComponent {
         )
     }
 
-
     fun process(context: Context, message: InboxMessage, triggerWebhooks: Boolean) {
         logsService.insert(
             LogEntry.Priority.DEBUG,
@@ -107,7 +106,7 @@ class ReceiverService : KoinComponent {
             mapOf(
                 "messageType" to message.javaClass.simpleName,
                 "date" to message.date,
-                "subscriptionId" to message.subscriptionId,
+                "subscriptionId" to message.subscriptionId
             )
         )
 
@@ -121,15 +120,12 @@ class ReceiverService : KoinComponent {
             logsService.insert(
                 LogEntry.Priority.DEBUG,
                 MODULE_NAME,
-                "ReceiverService::process - message processed",
+                "ReceiverService::process - message processed"
             )
         }
     }
 
-    private fun saveAndBuildPayload(
-        context: Context,
-        message: InboxMessage
-    ): Pair<WebHookEvent, Any>? {
+    private fun saveAndBuildPayload(context: Context, message: InboxMessage): Pair<WebHookEvent, Any>? {
         val simSlotIndex = message.subscriptionId?.let {
             SubscriptionsHelper.getSimSlotIndex(context, it)
         }
@@ -154,7 +150,7 @@ class ReceiverService : KoinComponent {
                 "Failed to enqueue inbox message",
                 mapOf(
                     "error" to (e.message ?: e.toString()),
-                    "stackTrace" to e.stackTraceToString(),
+                    "stackTrace" to e.stackTraceToString()
                 )
             )
         }
@@ -167,7 +163,7 @@ class ReceiverService : KoinComponent {
                 mapOf(
                     "messageType" to message.javaClass.simpleName,
                     "date" to message.date,
-                    "subscriptionId" to message.subscriptionId,
+                    "subscriptionId" to message.subscriptionId
                 )
             )
             return null
@@ -182,7 +178,7 @@ class ReceiverService : KoinComponent {
                 sender = incoming.sender,
                 simNumber = simNumber,
                 receivedAt = message.date,
-                recipient = recipient,
+                recipient = recipient
             )
 
             is InboxMessage.Data -> WebHookEvent.SmsDataReceived to SmsEventPayload.SmsDataReceived(
@@ -191,7 +187,7 @@ class ReceiverService : KoinComponent {
                 simNumber = simNumber,
                 receivedAt = message.date,
                 sender = incoming.sender,
-                recipient = recipient,
+                recipient = recipient
             )
 
             is InboxMessage.MmsHeaders -> WebHookEvent.MmsReceived to MmsReceivedPayload(
@@ -203,7 +199,7 @@ class ReceiverService : KoinComponent {
                 contentClass = message.contentClass,
                 receivedAt = message.date,
                 sender = incoming.sender,
-                recipient = recipient,
+                recipient = recipient
             )
 
             is InboxMessage.MMS -> WebHookEvent.MmsDownloaded to MmsDownloadedPayload(
@@ -219,18 +215,15 @@ class ReceiverService : KoinComponent {
                         contentType = it.contentType,
                         name = it.name,
                         size = it.size,
-                        data = it.data,
+                        data = it.data
                     )
                 },
-                receivedAt = message.date,
+                receivedAt = message.date
             )
         }
     }
 
-    private fun emitBatchWebhooks(
-        context: Context,
-        payloads: List<Pair<WebHookEvent, Any>>,
-    ) {
+    private fun emitBatchWebhooks(context: Context, payloads: List<Pair<WebHookEvent, Any>>) {
         val grouped = payloads.groupBy { it.first }
 
         grouped.forEach { (eventType, items) ->
@@ -240,19 +233,19 @@ class ReceiverService : KoinComponent {
                 @Suppress("UNCHECKED_CAST")
                 val batchPayload = when (eventType) {
                     WebHookEvent.SmsReceived -> SmsBatchReceivedPayload(
-                        messages = chunk as List<SmsEventPayload.SmsReceived>,
+                        messages = chunk as List<SmsEventPayload.SmsReceived>
                     )
 
                     WebHookEvent.SmsDataReceived -> SmsDataBatchReceivedPayload(
-                        messages = chunk as List<SmsEventPayload.SmsDataReceived>,
+                        messages = chunk as List<SmsEventPayload.SmsDataReceived>
                     )
 
                     WebHookEvent.MmsReceived -> MmsBatchReceivedPayload(
-                        messages = chunk as List<MmsReceivedPayload>,
+                        messages = chunk as List<MmsReceivedPayload>
                     )
 
                     WebHookEvent.MmsDownloaded -> MmsBatchDownloadedPayload(
-                        messages = chunk as List<MmsDownloadedPayload>,
+                        messages = chunk as List<MmsDownloadedPayload>
                     )
 
                     else -> {
@@ -271,12 +264,7 @@ class ReceiverService : KoinComponent {
         }
     }
 
-
-    fun select(
-        context: Context,
-        period: Pair<Date, Date>,
-        messageTypes: Set<IncomingMessageType>
-    ): List<InboxMessage> {
+    fun select(context: Context, period: Pair<Date, Date>, messageTypes: Set<IncomingMessageType>): List<InboxMessage> {
         logsService.insert(
             LogEntry.Priority.DEBUG,
             MODULE_NAME,
@@ -308,7 +296,7 @@ class ReceiverService : KoinComponent {
             Telephony.Sms._ID,
             Telephony.Sms.ADDRESS,
             Telephony.Sms.DATE_SENT,
-            Telephony.Sms.BODY,
+            Telephony.Sms.BODY
         )
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
             projection += Telephony.Sms.SUBSCRIPTION_ID
@@ -358,7 +346,7 @@ class ReceiverService : KoinComponent {
         val projection = arrayOf(Telephony.Mms._ID)
         // m_type 132 = retrieve-conf (fully downloaded MMS); date is in seconds
         val selection = "${Telephony.Mms.MESSAGE_TYPE} = 132 AND " +
-                "${Telephony.Mms.DATE} >= ? AND ${Telephony.Mms.DATE} <= ?"
+            "${Telephony.Mms.DATE} >= ? AND ${Telephony.Mms.DATE} <= ?"
         val selectionArgs = arrayOf(startSeconds.toString(), endSeconds.toString())
 
         val cursor = context.contentResolver.query(

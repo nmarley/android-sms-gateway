@@ -17,7 +17,7 @@ class IncomingMessagesService(
     private val settings: IncomingMessagesSettings,
     private val repository: IncomingMessagesRepository,
     private val attachmentStorage: MmsAttachmentStorage,
-    private val logsService: LogsService,
+    private val logsService: LogsService
 ) {
     fun save(message: InboxMessage): IncomingMessage {
         val simSlotIndex = message.subscriptionId?.let {
@@ -43,7 +43,7 @@ class IncomingMessagesService(
             simNumber = simNumber,
             subscriptionId = message.subscriptionId,
             contentPreview = message.toPreview(),
-            createdAt = message.date.time,
+            createdAt = message.date.time
         ).also {
             try {
                 repository.insert(it)
@@ -57,7 +57,7 @@ class IncomingMessagesService(
                     "Failed to save message",
                     mapOf(
                         "message" to message,
-                        "exception" to e.stackTraceToString(),
+                        "exception" to e.stackTraceToString()
                     )
                 )
             }
@@ -78,7 +78,7 @@ class IncomingMessagesService(
                             "messageId" to messageId,
                             "partId" to att.partId,
                             "name" to (att.name ?: ""),
-                            "error" to (e.message ?: e.toString()),
+                            "error" to (e.message ?: e.toString())
                         )
                     )
                 }.getOrNull()
@@ -90,7 +90,7 @@ class IncomingMessagesService(
                         att.partId,
                         att.name,
                         att.contentType,
-                        decoded,
+                        decoded
                     )
                 } catch (e: Exception) {
                     logsService.insert(
@@ -100,7 +100,7 @@ class IncomingMessagesService(
                         mapOf(
                             "messageId" to message.messageId,
                             "partId" to att.partId,
-                            "error" to (e.message ?: e.toString()),
+                            "error" to (e.message ?: e.toString())
                         )
                     )
                 }
@@ -108,9 +108,7 @@ class IncomingMessagesService(
         }
     }
 
-    suspend fun count(type: IncomingMessageType?, from: Long, to: Long): Int {
-        return repository.count(type, from, to)
-    }
+    suspend fun count(type: IncomingMessageType?, from: Long, to: Long): Int = repository.count(type, from, to)
 
     suspend fun select(
         type: IncomingMessageType?,
@@ -118,17 +116,11 @@ class IncomingMessagesService(
         to: Long,
         limit: Int,
         offset: Int
-    ): List<IncomingMessage> {
-        return repository.select(type, from, to, limit, offset)
-    }
+    ): List<IncomingMessage> = repository.select(type, from, to, limit, offset)
 
-    fun getById(id: String): IncomingMessage? {
-        return repository.selectById(id)
-    }
+    fun getById(id: String): IncomingMessage? = repository.selectById(id)
 
-    fun isMessageProcessed(message: InboxMessage): Boolean {
-        return getById(buildId(message)) != null
-    }
+    fun isMessageProcessed(message: InboxMessage): Boolean = getById(buildId(message)) != null
 
     fun start(context: Context) {
         settings.lifetimeDays ?: return
@@ -156,17 +148,15 @@ class IncomingMessagesService(
         return prefix + message.hashCode().toString()
     }
 
-    private fun InboxMessage.toPreview(): String {
-        return when (this) {
-            is InboxMessage.Text -> text
-            is InboxMessage.Data -> data?.let { bytes ->
-                val preview = bytes.take(64).joinToString(separator = "") { "%02x".format(it) }
-                if (bytes.size > 64) "$preview..." else preview
-            }
-                ?: "Empty data"
-
-            is InboxMessage.MmsHeaders -> subject ?: "MMS notification"
-            is InboxMessage.MMS -> body ?: subject ?: "MMS content"
+    private fun InboxMessage.toPreview(): String = when (this) {
+        is InboxMessage.Text -> text
+        is InboxMessage.Data -> data?.let { bytes ->
+            val preview = bytes.take(64).joinToString(separator = "") { "%02x".format(it) }
+            if (bytes.size > 64) "$preview..." else preview
         }
+            ?: "Empty data"
+
+        is InboxMessage.MmsHeaders -> subject ?: "MMS notification"
+        is InboxMessage.MMS -> body ?: subject ?: "MMS content"
     }
 }

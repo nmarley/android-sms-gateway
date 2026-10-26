@@ -13,5 +13,5 @@ data class TokenResponse(
     @SerializedName("expires_at")
     val expiresAt: Date,
     @SerializedName("refresh_token")
-    val refreshToken: String? = null,
+    val refreshToken: String? = null
 )

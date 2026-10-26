@@ -10,7 +10,7 @@ val MIGRATION_7_8 = object : Migration(7, 8) {
             UPDATE message
             SET validUntil = strftime('%FT%TZ', createdAt / 1000 + 86400, 'unixepoch')
             WHERE validUntil IS NULL AND state = 'Pending'
-        """.trimIndent()
+            """.trimIndent()
         )
     }
 }
@@ -71,7 +71,7 @@ val MIGRATION_13_14 = object : Migration(13, 14) {
                 createdAt,
                 processedAt
             FROM message
-        """.trimIndent()
+            """.trimIndent()
         )
 
         // Drop the old table and rename the new table to the original name
@@ -90,7 +90,7 @@ val MIGRATION_21_22 = object : Migration(21, 22) {
         database.execSQL(
             """
             DELETE FROM incoming_messages WHERE 1
-        """.trimIndent()
+            """.trimIndent()
         )
     }
 }

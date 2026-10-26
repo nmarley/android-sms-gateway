@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
 import android.util.Log
+import kotlin.concurrent.thread
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -22,7 +23,6 @@ import me.capcom.smsgateway.modules.ping.PingSettings
 import me.capcom.smsgateway.modules.ping.events.PingEvent
 import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
-import kotlin.concurrent.thread
 
 class PingForegroundService : Service() {
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -60,7 +60,6 @@ class PingForegroundService : Service() {
 
                 Thread.sleep(interval * 1000L)
             } catch (_: Throwable) {
-
             }
         }
     }

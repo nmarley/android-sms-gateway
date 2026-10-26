@@ -11,6 +11,8 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.google.gson.GsonBuilder
+import java.util.Date
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.capcom.smsgateway.R
@@ -23,13 +25,10 @@ import me.capcom.smsgateway.modules.logs.db.LogEntry
 import me.capcom.smsgateway.modules.notifications.NotificationsService
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import java.util.Date
-import java.util.concurrent.TimeUnit
 
-class InboxUploadWorker(
-    appContext: Context,
-    params: WorkerParameters,
-) : CoroutineWorker(appContext, params), KoinComponent {
+class InboxUploadWorker(appContext: Context, params: WorkerParameters) :
+    CoroutineWorker(appContext, params),
+    KoinComponent {
 
     private val notificationsSvc: NotificationsService by inject()
     private val logsSvc: LogsService by inject()
@@ -59,7 +58,7 @@ class InboxUploadWorker(
             WorkManager.getInstance(context).enqueueUniqueWork(
                 WORK_NAME,
                 ExistingWorkPolicy.APPEND_OR_REPLACE,
-                request,
+                request
             )
         }
 
@@ -82,7 +81,7 @@ class InboxUploadWorker(
                 LogEntry.Priority.ERROR,
                 MODULE_NAME,
                 "Inbox upload failed: ${e.message}",
-                mapOf("error" to e.toString(), "stackTrace" to e.stackTraceToString()),
+                mapOf("error" to e.toString(), "stackTrace" to e.stackTraceToString())
             )
             Result.retry()
         }
@@ -111,7 +110,7 @@ class InboxUploadWorker(
                     LogEntry.Priority.ERROR,
                     MODULE_NAME,
                     "Inbox upload failed: ${e.message}",
-                    mapOf("message" to entities[0], "error" to e.toString()),
+                    mapOf("message" to entities[0], "error" to e.toString())
                 )
                 repository.complete(ids)
             } else {
@@ -144,7 +143,7 @@ class InboxUploadWorker(
             content = entity.contentEncrypted,
             isEncrypted = true,
             createdAt = Date(entity.messageCreatedAt),
-            attachments = attachments,
+            attachments = attachments
         )
     }
 
@@ -152,7 +151,7 @@ class InboxUploadWorker(
         val notification = notificationsSvc.makeNotification(
             applicationContext,
             NotificationsService.NOTIFICATION_ID_INBOX_WORKER,
-            applicationContext.getString(R.string.processing_inbox_queue),
+            applicationContext.getString(R.string.processing_inbox_queue)
         )
         return ForegroundInfo(NotificationsService.NOTIFICATION_ID_INBOX_WORKER, notification)
     }

@@ -12,6 +12,7 @@ import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
+import java.util.Date
 import me.capcom.smsgateway.data.entities.MessageWithRecipients
 import me.capcom.smsgateway.domain.EntitySource
 import me.capcom.smsgateway.domain.MessageContent
@@ -34,13 +35,12 @@ import me.capcom.smsgateway.modules.messages.data.SendParams
 import me.capcom.smsgateway.modules.messages.data.SendRequest
 import me.capcom.smsgateway.modules.messages.exceptions.ConflictException
 import me.capcom.smsgateway.modules.receiver.ReceiverService
-import java.util.Date
 
 class MessagesRoutes(
     private val context: Context,
     private val messagesService: MessagesService,
     private val receiverService: ReceiverService,
-    private val settings: LocalServerSettings,
+    private val settings: LocalServerSettings
 ) {
     fun register(routing: Route) {
         routing.apply {
@@ -176,7 +176,7 @@ class MessagesRoutes(
                             MessageContent.Mms.Attachment(
                                 contentType = it.contentType,
                                 name = it.name,
-                                data = it.data,
+                                data = it.data
                             )
                         }
                     )
@@ -195,7 +195,7 @@ class MessagesRoutes(
                     content = messageContent,
                     phoneNumbers = request.phoneNumbers,
                     isEncrypted = request.isEncrypted ?: false,
-                    createdAt = Date(),
+                    createdAt = Date()
                 ),
                 SendParams(
                     request.withDeliveryReport ?: true,
@@ -203,7 +203,7 @@ class MessagesRoutes(
                     simNumber = request.simNumber,
                     validUntil = request.validUntil,
                     scheduleAt = request.scheduleAt,
-                    priority = request.priority,
+                    priority = request.priority
                 )
             )
 
@@ -216,7 +216,6 @@ class MessagesRoutes(
                 )
                 return@post
             }
-
 
             call.respond(
                 HttpStatusCode.Accepted,
@@ -287,7 +286,7 @@ class MessagesRoutes(
                     messageTypes = request.messageTypes ?: setOf(IncomingMessageType.SMS),
                     request.webhookDelivery
                         ?: (if (request.triggerWebhooks == false) WebhookDelivery.Disabled else null)
-                        ?: WebhookDelivery.Individual,
+                        ?: WebhookDelivery.Individual
                 )
                 call.respond(HttpStatusCode.Accepted)
             } catch (e: Exception) {
@@ -301,61 +300,60 @@ class MessagesRoutes(
 }
 
 internal fun MessageWithRecipients.toDomain(
-        deviceId: String,
-        includeContent: Boolean = false
-    ): me.capcom.smsgateway.modules.localserver.domain.messages.Message {
-        return me.capcom.smsgateway.modules.localserver.domain.messages.Message(
-            id = message.id,
-            deviceId = deviceId,
-            state = message.state,
-            createdAt = Date(message.createdAt),
-            isHashed = false,
-            isEncrypted = message.isEncrypted,
-            textMessage = when (includeContent) {
-                true -> message.textContent?.let {
-                    TextMessage(it.text)
-                }
+    deviceId: String,
+    includeContent: Boolean = false
+): me.capcom.smsgateway.modules.localserver.domain.messages.Message =
+    me.capcom.smsgateway.modules.localserver.domain.messages.Message(
+        id = message.id,
+        deviceId = deviceId,
+        state = message.state,
+        createdAt = Date(message.createdAt),
+        isHashed = false,
+        isEncrypted = message.isEncrypted,
+        textMessage = when (includeContent) {
+            true -> message.textContent?.let {
+                TextMessage(it.text)
+            }
 
-                else -> null
-            },
-            dataMessage = when (includeContent) {
-                true -> message.dataContent?.let {
-                    DataMessage(
-                        data = it.data,
-                        port = it.port.toInt()
-                    )
-                }
-
-                else -> null
-            },
-            mmsMessage = when (includeContent) {
-                true -> message.mmsContent?.let { mms ->
-                    MmsMessage(
-                        subject = mms.subject,
-                        text = mms.text,
-                        attachments = mms.attachments.map {
-                            MmsMessage.Attachment(
-                                contentType = it.contentType,
-                                name = it.name,
-                                data = it.data,
-                            )
-                        }
-                    )
-                }
-
-                else -> null
-            },
-            hashedMessage = null,
-            recipients = recipients.map {
-                me.capcom.smsgateway.modules.localserver.domain.messages.Message.Recipient(
-                    it.phoneNumber,
-                    it.state,
-                    it.error
+            else -> null
+        },
+        dataMessage = when (includeContent) {
+            true -> message.dataContent?.let {
+                DataMessage(
+                    data = it.data,
+                    port = it.port.toInt()
                 )
-            },
-            states = states.associate {
-                it.state to Date(it.updatedAt)
-            },
-            scheduleAt = message.scheduleAt,
-        )
-    }
+            }
+
+            else -> null
+        },
+        mmsMessage = when (includeContent) {
+            true -> message.mmsContent?.let { mms ->
+                MmsMessage(
+                    subject = mms.subject,
+                    text = mms.text,
+                    attachments = mms.attachments.map {
+                        MmsMessage.Attachment(
+                            contentType = it.contentType,
+                            name = it.name,
+                            data = it.data
+                        )
+                    }
+                )
+            }
+
+            else -> null
+        },
+        hashedMessage = null,
+        recipients = recipients.map {
+            me.capcom.smsgateway.modules.localserver.domain.messages.Message.Recipient(
+                it.phoneNumber,
+                it.state,
+                it.error
+            )
+        },
+        states = states.associate {
+            it.state to Date(it.updatedAt)
+        },
+        scheduleAt = message.scheduleAt
+    )

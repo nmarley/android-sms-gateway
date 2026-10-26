@@ -5,8 +5,7 @@ import android.net.wifi.WifiManager
 import java.net.Inet4Address
 import java.net.NetworkInterface
 
-
-class LocalIPProvider(private val context: Context): IPProvider {
+class LocalIPProvider(private val context: Context) : IPProvider {
     override suspend fun getIP(): String? {
         try {
             val wifiManager =
@@ -17,9 +16,9 @@ class LocalIPProvider(private val context: Context): IPProvider {
                 val ipInt = connectionInfo.ipAddress
                 if (ipInt != 0) {
                     return (ipInt and 0xFF).toString() + "." +
-                            ((ipInt shr 8) and 0xFF) + "." +
-                            ((ipInt shr 16) and 0xFF) + "." +
-                            ((ipInt shr 24) and 0xFF)
+                        ((ipInt shr 8) and 0xFF) + "." +
+                        ((ipInt shr 16) and 0xFF) + "." +
+                        ((ipInt shr 24) and 0xFF)
                 }
             }
 

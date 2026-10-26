@@ -19,7 +19,9 @@ interface TokensDao {
     @Query("UPDATE tokens SET revokedAt = strftime('%s', 'now') * 1000 WHERE id = :id")
     suspend fun revoke(id: String)
 
-    @Query("UPDATE tokens SET revokedAt = strftime('%s', 'now') * 1000 WHERE (id = :id OR parentJti = :id) AND revokedAt IS NULL")
+    @Query(
+        "UPDATE tokens SET revokedAt = strftime('%s', 'now') * 1000 WHERE (id = :id OR parentJti = :id) AND revokedAt IS NULL"
+    )
     suspend fun revokeWithChildren(id: String)
 
     @Query("UPDATE tokens SET revokedAt = strftime('%s', 'now') * 1000 WHERE id = :id AND revokedAt IS NULL")
@@ -38,7 +40,11 @@ interface TokensDao {
     }
 
     @Transaction
-    suspend fun rotateRefreshToken(currentRefreshJti: String, newAccess: Token, newRefresh: Token): RefreshRotationResult {
+    suspend fun rotateRefreshToken(
+        currentRefreshJti: String,
+        newAccess: Token,
+        newRefresh: Token
+    ): RefreshRotationResult {
         val current = findByID(currentRefreshJti) ?: return RefreshRotationResult.NotFound
         if (current.tokenUse != TokenUse.Refresh.value) {
             return RefreshRotationResult.WrongTokenUse
@@ -63,5 +69,5 @@ enum class RefreshRotationResult {
     Rotated,
     NotFound,
     AlreadyRevoked,
-    WrongTokenUse,
+    WrongTokenUse
 }

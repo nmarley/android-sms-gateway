@@ -14,8 +14,7 @@ import me.capcom.smsgateway.databinding.ItemWebhookBinding
 import me.capcom.smsgateway.modules.webhooks.domain.WebHookDTO
 
 class WebhookAdapter : ListAdapter<WebHookDTO, WebhookAdapter.ViewHolder>(WebhookDiffCallback()) {
-    class ViewHolder(private val binding: ItemWebhookBinding) :
-        RecyclerView.ViewHolder(binding.root) {
+    class ViewHolder(private val binding: ItemWebhookBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(webhook: WebHookDTO) {
             binding.apply {
                 idText.text = binding.root.context.getString(R.string.webhook_id_format, webhook.id)
@@ -71,12 +70,8 @@ class WebhookAdapter : ListAdapter<WebHookDTO, WebhookAdapter.ViewHolder>(Webhoo
     }
 
     class WebhookDiffCallback : DiffUtil.ItemCallback<WebHookDTO>() {
-        override fun areItemsTheSame(oldItem: WebHookDTO, newItem: WebHookDTO): Boolean {
-            return oldItem.id == newItem.id
-        }
+        override fun areItemsTheSame(oldItem: WebHookDTO, newItem: WebHookDTO): Boolean = oldItem.id == newItem.id
 
-        override fun areContentsTheSame(oldItem: WebHookDTO, newItem: WebHookDTO): Boolean {
-            return oldItem == newItem
-        }
+        override fun areContentsTheSame(oldItem: WebHookDTO, newItem: WebHookDTO): Boolean = oldItem == newItem
     }
 }

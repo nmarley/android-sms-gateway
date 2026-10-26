@@ -13,7 +13,7 @@ import androidx.room.TypeConverters
     tableName = "webhook_queue",
     indices = [
         androidx.room.Index(value = ["status", "next_attempt"]),
-        androidx.room.Index(value = ["status", "created_at"]),
+        androidx.room.Index(value = ["status", "created_at"])
     ]
 )
 @TypeConverters(WebhookConverters::class)
@@ -40,5 +40,5 @@ data class WebhookQueueEntity(
     val nextAttempt: Long = System.currentTimeMillis(),
 
     @ColumnInfo(name = "last_error")
-    val lastError: String? = null,
+    val lastError: String? = null
 )

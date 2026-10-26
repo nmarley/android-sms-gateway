@@ -3,7 +3,6 @@ package me.capcom.smsgateway.modules.localserver.domain.messages
 import com.google.gson.annotations.SerializedName
 import java.util.Date
 
-
 data class PostMessageRequest(
     val id: String?,
     @Deprecated("Use textMessage instead")
@@ -24,7 +23,7 @@ data class PostMessageRequest(
     private val _ttl: Long?,
     @SerializedName("validUntil")
     private val _validUntil: Date?,
-    val scheduleAt: Date? = null,
+    val scheduleAt: Date? = null
 ) {
     val validUntil: Date?
         get() {
@@ -46,8 +45,12 @@ data class PostMessageRequest(
         val messageTypes =
             listOfNotNull(textMessage, dataMessage, mmsMessage, message)
         when {
-            messageTypes.isEmpty() -> throw IllegalArgumentException("Must specify exactly one of: textMessage, dataMessage, mmsMessage, or message")
-            messageTypes.size > 1 -> throw IllegalArgumentException("Cannot specify multiple message types simultaneously")
+            messageTypes.isEmpty() -> throw IllegalArgumentException(
+                "Must specify exactly one of: textMessage, dataMessage, mmsMessage, or message"
+            )
+            messageTypes.size > 1 -> throw IllegalArgumentException(
+                "Cannot specify multiple message types simultaneously"
+            )
         }
 
         // Validate message parameters

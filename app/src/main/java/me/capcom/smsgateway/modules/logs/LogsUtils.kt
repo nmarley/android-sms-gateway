@@ -9,12 +9,12 @@ object LogsUtils {
         "data" to this.dataString,
         "extras" to JSONObject().apply {
             extras?.keySet()?.forEach { key -> this.putOpt(key, JSONObject.wrap(extras?.get(key))) }
-        },
+        }
     )
 
     fun Throwable.toLogContext(): Map<String, *> = mapOf(
         "message" to this.message,
         "stackTrace" to this.stackTrace.take(10).joinToString("\n"),
-        "threadName" to Thread.currentThread().name,
+        "threadName" to Thread.currentThread().name
     )
 }

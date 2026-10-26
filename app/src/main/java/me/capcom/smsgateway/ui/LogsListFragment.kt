@@ -25,7 +25,6 @@ class LogsListFragment : Fragment() {
         super.onCreate(savedInstanceState)
 
         arguments?.let {
-
         }
 
         viewModel.lastEntries.observe(this) {
@@ -35,10 +34,7 @@ class LogsListFragment : Fragment() {
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         _binding = FragmentLogsBinding.inflate(inflater, container, false)
         return binding.root
@@ -59,11 +55,9 @@ class LogsListFragment : Fragment() {
     }
 
     companion object {
-        fun newInstance() =
-            LogsListFragment().apply {
-                arguments = Bundle().apply {
-
-                }
+        fun newInstance() = LogsListFragment().apply {
+            arguments = Bundle().apply {
             }
+        }
     }
 }

@@ -5,9 +5,9 @@ import me.capcom.smsgateway.modules.settings.Importer
 import me.capcom.smsgateway.modules.settings.KeyValueStorage
 import me.capcom.smsgateway.modules.settings.get
 
-class LogsSettings(
-    private val storage: KeyValueStorage,
-) : Exporter, Importer {
+class LogsSettings(private val storage: KeyValueStorage) :
+    Exporter,
+    Importer {
     val lifetimeDays: Int?
         get() = storage.get<Int?>(LIFETIME_DAYS)?.takeIf { it > 0 }
 
@@ -38,26 +38,22 @@ class LogsSettings(
         private const val VERSION = "version"
     }
 
-    override fun export(): Map<String, *> {
-        return mapOf(
-            LIFETIME_DAYS to lifetimeDays,
-        )
-    }
+    override fun export(): Map<String, *> = mapOf(
+        LIFETIME_DAYS to lifetimeDays
+    )
 
-    override fun import(data: Map<String, *>): Boolean {
-        return data.map {
-            when (it.key) {
-                LIFETIME_DAYS -> {
-                    val newValue = it.value?.toString()?.toFloat()?.toInt()?.takeIf { it > 0 }
-                    val changed = lifetimeDays != newValue
+    override fun import(data: Map<String, *>): Boolean = data.map {
+        when (it.key) {
+            LIFETIME_DAYS -> {
+                val newValue = it.value?.toString()?.toFloat()?.toInt()?.takeIf { it > 0 }
+                val changed = lifetimeDays != newValue
 
-                    storage.set(it.key, newValue?.toString())
+                storage.set(it.key, newValue?.toString())
 
-                    changed
-                }
-
-                else -> false
+                changed
             }
-        }.any { it }
-    }
+
+            else -> false
+        }
+    }.any { it }
 }

@@ -1,8 +1,6 @@
 package me.capcom.smsgateway.modules.gateway.inbox
 
-class InboxUploadRepository(
-    private val dao: InboxUploadDao,
-) {
+class InboxUploadRepository(private val dao: InboxUploadDao) {
     suspend fun enqueue(
         messageId: String,
         type: String,
@@ -11,7 +9,7 @@ class InboxUploadRepository(
         simNumber: Int?,
         messageCreatedAt: Long,
         contentEncrypted: String,
-        attachmentsEncrypted: String?,
+        attachmentsEncrypted: String?
     ) {
         dao.insert(
             InboxUploadEntity(
@@ -23,13 +21,12 @@ class InboxUploadRepository(
                 simNumber = simNumber,
                 messageCreatedAt = messageCreatedAt,
                 contentEncrypted = contentEncrypted,
-                attachmentsEncrypted = attachmentsEncrypted,
+                attachmentsEncrypted = attachmentsEncrypted
             )
         )
     }
 
-    suspend fun getPending(limit: Int = 100): List<InboxUploadEntity> =
-        dao.getPending(limit = limit)
+    suspend fun getPending(limit: Int = 100): List<InboxUploadEntity> = dao.getPending(limit = limit)
 
     suspend fun complete(ids: List<Long>) {
         if (ids.isEmpty()) return

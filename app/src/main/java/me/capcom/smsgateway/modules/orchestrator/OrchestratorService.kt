@@ -26,7 +26,7 @@ class OrchestratorService(
     private val pingSvc: PingService,
     private val logsSvc: LogsService,
     private val deviceService: DeviceService,
-    private val settings: SettingsHelper,
+    private val settings: SettingsHelper
 ) {
     fun start(context: Context, autostart: Boolean) {
         if (autostart && !settings.autostart) {

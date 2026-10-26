@@ -9,7 +9,7 @@ import me.capcom.smsgateway.modules.messages.MessagesService
 class HealthService(
     private val messagesSvc: MessagesService,
     private val connectionSvc: ConnectionService,
-    private val batteryMon: BatteryMonitor,
+    private val batteryMon: BatteryMonitor
 ) {
 
     fun healthCheck(): HealthResult {
@@ -18,8 +18,8 @@ class HealthService(
         val batteryChecks = batteryMon.healthCheck()
 
         val allChecks = messagesChecks.mapKeys { "messages:${it.key}" } +
-                connectionChecks.mapKeys { "connection:${it.key}" } +
-                batteryChecks.mapKeys { "battery:${it.key}" }
+            connectionChecks.mapKeys { "connection:${it.key}" } +
+            batteryChecks.mapKeys { "battery:${it.key}" }
 
         return HealthResult(
             when {

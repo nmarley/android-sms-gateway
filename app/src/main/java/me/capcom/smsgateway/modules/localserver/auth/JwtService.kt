@@ -1,10 +1,11 @@
 package me.capcom.smsgateway.modules.localserver.auth
 
 import android.content.Context
-import android.util.Log
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils
+import java.util.Date
+import kotlin.math.min
 import me.capcom.smsgateway.data.dao.RefreshRotationResult
 import me.capcom.smsgateway.data.dao.TokensDao
 import me.capcom.smsgateway.data.entities.Token
@@ -12,19 +13,10 @@ import me.capcom.smsgateway.data.entities.TokenUse
 import me.capcom.smsgateway.modules.localserver.LocalServerSettings
 import me.capcom.smsgateway.modules.logs.LogsService
 import me.capcom.smsgateway.modules.logs.db.LogEntry
-import java.util.Date
-import kotlin.math.min
 
-data class GeneratedTokenInfo(
-    val id: String,
-    val token: String,
-    val expiresAt: Date,
-)
+data class GeneratedTokenInfo(val id: String, val token: String, val expiresAt: Date)
 
-data class GeneratedTokenPair(
-    val access: GeneratedTokenInfo,
-    val refresh: GeneratedTokenInfo,
-)
+data class GeneratedTokenPair(val access: GeneratedTokenInfo, val refresh: GeneratedTokenInfo)
 
 sealed class RefreshTokenException(message: String) : IllegalArgumentException(message)
 class InvalidRefreshTokenException(message: String) : RefreshTokenException(message)
@@ -34,7 +26,7 @@ class JwtService(
     context: Context,
     private val settings: LocalServerSettings,
     private val tokensDao: TokensDao,
-    private val logsService: LogsService,
+    private val logsService: LogsService
 ) {
     private val issuer = context.packageName
 
@@ -47,7 +39,7 @@ class JwtService(
 
         val pair = buildTokenPair(
             requestedScopes = effectiveScopes,
-            accessTTL = accessTTL,
+            accessTTL = accessTTL
         )
 
         tokensDao.insertPair(pair.accessModel, pair.refreshModel)
@@ -56,10 +48,7 @@ class JwtService(
         return pair.generated
     }
 
-    suspend fun refreshTokenPair(
-        refreshTokenID: String,
-        originalScopes: List<String>
-    ): GeneratedTokenPair {
+    suspend fun refreshTokenPair(refreshTokenID: String, originalScopes: List<String>): GeneratedTokenPair {
         val validScopes = try {
             normalizeAndValidateScopes(originalScopes)
         } catch (e: IllegalArgumentException) {
@@ -69,22 +58,22 @@ class JwtService(
                 "Refresh rejected: invalid original scopes",
                 mapOf(
                     "originalScopes" to originalScopes,
-                    "exception" to e.message,
-                ),
+                    "exception" to e.message
+                )
             )
             throw InvalidRefreshTokenException("invalid original scopes")
         }
 
         val pair = buildTokenPair(
             requestedScopes = validScopes,
-            accessTTL = settings.jwtTtlSeconds,
+            accessTTL = settings.jwtTtlSeconds
         )
 
         when (
             tokensDao.rotateRefreshToken(
                 currentRefreshJti = refreshTokenID,
                 newAccess = pair.accessModel,
-                newRefresh = pair.refreshModel,
+                newRefresh = pair.refreshModel
             )
         ) {
             RefreshRotationResult.Rotated -> {
@@ -94,8 +83,8 @@ class JwtService(
                     "Refresh token rotated",
                     mapOf(
                         "refreshTokenID" to refreshTokenID,
-                        "originalScopes" to originalScopes,
-                    ),
+                        "originalScopes" to originalScopes
+                    )
                 )
                 cleanupExpiredTokens()
                 return pair.generated
@@ -108,8 +97,8 @@ class JwtService(
                     "Refresh token replay detected",
                     mapOf(
                         "refreshTokenID" to refreshTokenID,
-                        "originalScopes" to originalScopes,
-                    ),
+                        "originalScopes" to originalScopes
+                    )
                 )
                 throw RefreshTokenReplayException("refresh token replay detected")
             }
@@ -121,8 +110,8 @@ class JwtService(
                     "Refresh token not found",
                     mapOf(
                         "refreshTokenID" to refreshTokenID,
-                        "originalScopes" to originalScopes,
-                    ),
+                        "originalScopes" to originalScopes
+                    )
                 )
                 throw InvalidRefreshTokenException("refresh token not found")
             }
@@ -134,8 +123,8 @@ class JwtService(
                     "Invalid refresh token use",
                     mapOf(
                         "refreshTokenID" to refreshTokenID,
-                        "originalScopes" to originalScopes,
-                    ),
+                        "originalScopes" to originalScopes
+                    )
                 )
                 throw InvalidRefreshTokenException("invalid refresh token use")
             }
@@ -150,9 +139,7 @@ class JwtService(
         tokensDao.revokeWithChildren(jti)
     }
 
-    suspend fun isTokenRevoked(jti: String): Boolean {
-        return tokensDao.isRevoked(jti)
-    }
+    suspend fun isTokenRevoked(jti: String): Boolean = tokensDao.isRevoked(jti)
 
     private suspend fun cleanupExpiredTokens() {
         tokensDao.cleanup()
@@ -208,24 +195,24 @@ class JwtService(
                 access = GeneratedTokenInfo(
                     id = accessTokenID,
                     token = accessToken,
-                    expiresAt = accessExpiresAt,
+                    expiresAt = accessExpiresAt
                 ),
                 refresh = GeneratedTokenInfo(
                     id = refreshTokenID,
                     token = refreshToken,
-                    expiresAt = refreshExpiresAt,
-                ),
+                    expiresAt = refreshExpiresAt
+                )
             ),
             accessModel = Token(
                 id = accessTokenID,
                 expiresAt = accessExpiresAt.time,
-                tokenUse = TokenUse.Access.value,
+                tokenUse = TokenUse.Access.value
             ),
             refreshModel = Token(
                 id = refreshTokenID,
                 expiresAt = refreshExpiresAt.time,
                 tokenUse = TokenUse.Refresh.value,
-                parentJti = accessTokenID,
+                parentJti = accessTokenID
             )
         )
     }
@@ -233,7 +220,7 @@ class JwtService(
     private data class BuiltTokenPair(
         val generated: GeneratedTokenPair,
         val accessModel: Token,
-        val refreshModel: Token,
+        val refreshModel: Token
     )
 
     companion object {
@@ -245,7 +232,7 @@ class JwtService(
             }
             return maxOf(
                 accessTTL + 1,
-                min(LocalServerSettings.MAX_JWT_TTL_SECONDS, accessTTL * 7),
+                min(LocalServerSettings.MAX_JWT_TTL_SECONDS, accessTTL * 7)
             )
         }
     }

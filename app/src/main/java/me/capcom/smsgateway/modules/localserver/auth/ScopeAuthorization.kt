@@ -9,10 +9,7 @@ import io.ktor.server.auth.principal
 import io.ktor.server.response.respond
 import io.ktor.util.pipeline.PipelineContext
 
-suspend fun PipelineContext<Unit, ApplicationCall>.requireScope(
-    scope: AuthScopes,
-    exact: Boolean = false
-): Boolean {
+suspend fun PipelineContext<Unit, ApplicationCall>.requireScope(scope: AuthScopes, exact: Boolean = false): Boolean {
     if (call.principal<UserIdPrincipal>() != null && !exact) {
         return true
     }

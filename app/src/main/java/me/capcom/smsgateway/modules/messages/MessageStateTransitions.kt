@@ -68,15 +68,13 @@ object MessageStateTransitions {
      * [scope] is accepted for API symmetry; both scopes share the same terminal set.
      */
     @Suppress("UNUSED_PARAMETER")
-    fun isTerminal(state: ProcessingState, scope: Scope): Boolean =
-        state == ProcessingState.Failed
+    fun isTerminal(state: ProcessingState, scope: Scope): Boolean = state == ProcessingState.Failed
 
     /**
      * Scope.Message and Scope.Recipient return the same table (scopes are identical).
      */
-    private fun transitions(scope: Scope): Map<ProcessingState, Set<ProcessingState>> =
-        when (scope) {
-            Scope.Message -> transitionTable
-            Scope.Recipient -> transitionTable
-        }
+    private fun transitions(scope: Scope): Map<ProcessingState, Set<ProcessingState>> = when (scope) {
+        Scope.Message -> transitionTable
+        Scope.Recipient -> transitionTable
+    }
 }

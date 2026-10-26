@@ -7,15 +7,17 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import java.util.concurrent.TimeUnit
 import me.capcom.smsgateway.modules.messages.MessagesService
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import java.util.concurrent.TimeUnit
 
-class LogTruncateWorker(appContext: Context, params: WorkerParameters) : CoroutineWorker(
-    appContext,
-    params
-), KoinComponent {
+class LogTruncateWorker(appContext: Context, params: WorkerParameters) :
+    CoroutineWorker(
+        appContext,
+        params
+    ),
+    KoinComponent {
     private val messagesSvc: MessagesService by inject()
 
     override suspend fun doWork(): Result = try {

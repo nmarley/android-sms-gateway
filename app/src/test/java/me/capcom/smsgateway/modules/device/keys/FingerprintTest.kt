@@ -10,11 +10,21 @@ internal class FingerprintTest {
 
     // RSA-2048 SPKI DER (SubjectPublicKeyInfo) in base64 NO_WRAP, same
     // encoding as produced by KeyStore.encodePublicKey.
-    private val key1 = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7aOC/3NuXQULVFdAYJBVSlZAMDTI7oPXYs0S8KS0k6zxAqtX25yC5wsq+S05e7OeG8J8vDD90Hz8hRhvcfx7ZkNPmVeeEpVTqSV3XrA1cWzRKueOwEAJmXR2hsPs1p5YL6MtIZn9AFF/WEV8KosLkpYBRTMs+hHQk+EKqoU5aFFwuN30KyGgMYGm2lEiJPACVsATPxxNOfQP9ZsatHZ7t2khN6cKPQ5/YVhWWKFsyVcKK2usZo9K3/Zp5xT8J+2o9AGCMBod6QQh75QlCdDAv6WUm/eYj/7i/x3J9RKpAuIFLToX4mZjgyAhs7MYCjGIG9XRVguESFdYlwjjLcT44wIDAQAB"
+    private val key1 =
+        "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7aOC/3NuXQULVFdAYJBVSlZAMDTI7oPXYs0S8KS0k6zx" +
+            "AqtX25yC5wsq+S05e7OeG8J8vDD90Hz8hRhvcfx7ZkNPmVeeEpVTqSV3XrA1cWzRKueOwEAJmXR2hsPs1p5YL6Mt" +
+            "IZn9AFF/WEV8KosLkpYBRTMs+hHQk+EKqoU5aFFwuN30KyGgMYGm2lEiJPACVsATPxxNOfQP9ZsatHZ7t2khN6cK" +
+            "PQ5/YVhWWKFsyVcKK2usZo9K3/Zp5xT8J+2o9AGCMBod6QQh75QlCdDAv6WUm/eYj/7i/x3J9RKpAuIFLToX4mZj" +
+            "gyAhs7MYCjGIG9XRVguESFdYlwjjLcT44wIDAQAB"
     private val key1Fingerprint =
         "1461:C5BD:FB5C:79A7:1A9C:1CA1:617C:F044:2FF4:A2FF:3989:40A6:73BE:4157:29A8:49E2"
 
-    private val key2 = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvYkJzsVxnjOYB52VrmVvDAyuI2Y55hlOf4ppuUQXasYs0UHO8x+l8DqRBWBL2jNgxJkH9x6szFJSfj083e5Oh7prXkoBJDxgpQ4JtHknCvXGh17Bpe/GEClijzFgZq0gnxkLmuNZ7gOsGqBX1+rfivbDas/HyJ21dIjm7H84S3y6pM3LaUEYoTUELrjKkx/gz0Esfqu9LZsihv5Xbfrz4IMhLr30cnEqqwTDe1jg7BpD0kRioTjsPXxS5TQ5B5TFoOjOYXcHVCl+sE5oLWzH2Z82doUhC+8TMTAVS1d9oNAI2PoKraLsAGleM0VrCMGS+iH8ZpQJYlIL31j1hznIEwIDAQAB"
+    private val key2 =
+        "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvYkJzsVxnjOYB52VrmVvDAyuI2Y55hlOf4ppuUQXasYs" +
+            "0UHO8x+l8DqRBWBL2jNgxJkH9x6szFJSfj083e5Oh7prXkoBJDxgpQ4JtHknCvXGh17Bpe/GEClijzFgZq0gnxkL" +
+            "muNZ7gOsGqBX1+rfivbDas/HyJ21dIjm7H84S3y6pM3LaUEYoTUELrjKkx/gz0Esfqu9LZsihv5Xbfrz4IMhLr30" +
+            "cnEqqwTDe1jg7BpD0kRioTjsPXxS5TQ5B5TFoOjOYXcHVCl+sE5oLWzH2Z82doUhC+8TMTAVS1d9oNAI2PoKraLs" +
+            "AGleM0VrCMGS+iH8ZpQJYlIL31j1hznIEwIDAQAB"
     private val key2Fingerprint =
         "AC84:5367:ADB5:DD43:6FF4:DB87:9A27:5400:FBAA:1B4A:6B67:9308:AD04:23FE:F29E:B22E"
 
@@ -57,7 +67,7 @@ internal class FingerprintTest {
         val fingerprints = listOf(
             key1Fingerprint,
             key2Fingerprint,
-            requireNotNull(Fingerprint.format("abc".toByteArray())),
+            requireNotNull(Fingerprint.format("abc".toByteArray()))
         )
 
         for (fingerprint in fingerprints) {

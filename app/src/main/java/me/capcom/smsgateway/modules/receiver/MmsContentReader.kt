@@ -18,7 +18,7 @@ object MmsContentReader {
         val body: String?,
         val date: Date,
         val attachments: List<MmsAttachment>,
-        val subscriptionId: Int?,
+        val subscriptionId: Int?
     )
 
     data class MmsAttachment(
@@ -26,7 +26,7 @@ object MmsContentReader {
         val contentType: String,
         val name: String?,
         val size: Long?,
-        val data: String?,
+        val data: String?
     )
 
     fun read(context: Context, mmsId: Long): MmsMessage? {
@@ -42,7 +42,9 @@ object MmsContentReader {
         val mmsCursor = resolver.query(
             mmsUri,
             projection.toTypedArray(),
-            null, null, null
+            null,
+            null,
+            null
         ) ?: return null
 
         val subject: String?
@@ -65,7 +67,8 @@ object MmsContentReader {
             addrUri,
             arrayOf("address"),
             "type = 137",
-            null, null
+            null,
+            null
         )?.use { c ->
             if (c.moveToFirst()) c.getString(0)?.takeIf { it.isNotBlank() } else null
         } ?: "unknown"
@@ -75,7 +78,9 @@ object MmsContentReader {
         val partCursor = resolver.query(
             partUri,
             arrayOf("_id", "ct", "text", "name", "fn", "cl", "_data"),
-            null, null, "_id"
+            null,
+            null,
+            "_id"
         )
 
         val bodyParts = mutableListOf<String>()
@@ -113,7 +118,7 @@ object MmsContentReader {
                             contentType = contentType,
                             name = name,
                             size = size,
-                            data = readPartData(resolver, partId),
+                            data = readPartData(resolver, partId)
                         )
                     )
                 }
@@ -127,7 +132,7 @@ object MmsContentReader {
             body = bodyParts.joinToString("\n").takeIf { it.isNotEmpty() },
             date = date,
             attachments = attachments,
-            subscriptionId = subscriptionId,
+            subscriptionId = subscriptionId
         )
     }
 
@@ -153,23 +158,16 @@ object MmsContentReader {
         }
     }
 
-
-    private fun readPartData(resolver: ContentResolver, partId: Long): String? {
-        return try {
-            resolver.openInputStream(Uri.parse("content://mms/part/$partId"))?.use { input ->
-                val bytes = input.readBytes()
-                if (bytes.isNotEmpty()) Base64.encodeToString(bytes, Base64.NO_WRAP) else null
-            }
-        } catch (_: Exception) {
-            null
+    private fun readPartData(resolver: ContentResolver, partId: Long): String? = try {
+        resolver.openInputStream(Uri.parse("content://mms/part/$partId"))?.use { input ->
+            val bytes = input.readBytes()
+            if (bytes.isNotEmpty()) Base64.encodeToString(bytes, Base64.NO_WRAP) else null
         }
+    } catch (_: Exception) {
+        null
     }
 
-    private fun readTextPart(
-        resolver: ContentResolver,
-        partId: Long,
-        contentType: String?
-    ): String? {
+    private fun readTextPart(resolver: ContentResolver, partId: Long, contentType: String?): String? {
         return try {
             resolver.openInputStream(Uri.parse("content://mms/part/$partId"))?.use { input ->
                 val bytes = input.readBytes()

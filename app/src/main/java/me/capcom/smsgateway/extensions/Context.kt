@@ -4,10 +4,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
 
-fun Context.setComponentEnabled(
-    component: Class<*>,
-    enabled: Boolean,
-) {
+fun Context.setComponentEnabled(component: Class<*>, enabled: Boolean) {
     packageManager.setComponentEnabledSetting(
         ComponentName(this, component),
         if (enabled) {

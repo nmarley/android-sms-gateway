@@ -11,9 +11,7 @@ import me.capcom.smsgateway.modules.localserver.auth.AuthScopes
 import me.capcom.smsgateway.modules.localserver.auth.requireScope
 import me.capcom.smsgateway.modules.settings.SettingsService
 
-class SettingsRoutes(
-    private val settingsService: SettingsService
-) {
+class SettingsRoutes(private val settingsService: SettingsService) {
     fun register(routing: Route) {
         routing.apply {
             settingsRoutes()

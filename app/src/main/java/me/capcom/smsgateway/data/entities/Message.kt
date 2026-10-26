@@ -4,15 +4,15 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.Gson
+import java.util.Date
 import me.capcom.smsgateway.domain.EntitySource
 import me.capcom.smsgateway.domain.MessageContent
 import me.capcom.smsgateway.domain.ProcessingState
-import java.util.Date
 
 enum class MessageType {
     Text,
     Data,
-    Mms,
+    Mms
 }
 
 @Entity(
@@ -20,7 +20,7 @@ enum class MessageType {
         androidx.room.Index(value = ["createdAt"]),
         androidx.room.Index(value = ["state", "processedAt"]),
         androidx.room.Index(value = ["state", "createdAt"]),
-        androidx.room.Index(value = ["state", "scheduleAt"]),
+        androidx.room.Index(value = ["state", "scheduleAt"])
     ]
 )
 data class Message constructor(
@@ -50,7 +50,7 @@ data class Message constructor(
     val partsCount: Int? = null,
     @ColumnInfo(defaultValue = "0")
     val createdAt: Long = System.currentTimeMillis(),
-    val processedAt: Long? = null,
+    val processedAt: Long? = null
 ) {
     constructor(
         id: String,
@@ -65,7 +65,7 @@ data class Message constructor(
 
         content: MessageContent,
 
-        createdAt: Long,
+        createdAt: Long
     ) : this(
         id,
         withDeliveryReport,
@@ -83,7 +83,7 @@ data class Message constructor(
             is MessageContent.Data -> MessageType.Data
             is MessageContent.Mms -> MessageType.Mms
         },
-        createdAt = createdAt,
+        createdAt = createdAt
     )
 
     val textContent: MessageContent.Text?

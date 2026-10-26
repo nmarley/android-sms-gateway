@@ -13,9 +13,7 @@ import me.capcom.smsgateway.modules.gateway.events.SettingsUpdatedEvent
 import me.capcom.smsgateway.modules.gateway.events.WebhooksUpdatedEvent
 import me.capcom.smsgateway.modules.receiver.events.MessagesExportRequestedEvent
 
-class EventsRouter(
-    private val eventBus: EventBus,
-) {
+class EventsRouter(private val eventBus: EventBus) {
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     fun route(event: ExternalEvent) {

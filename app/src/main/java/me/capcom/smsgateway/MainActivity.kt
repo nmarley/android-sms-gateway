@@ -7,10 +7,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.tabs.TabLayoutMediator
 import me.capcom.smsgateway.databinding.ActivityMainBinding
+import me.capcom.smsgateway.helpers.LocaleHelper
 import me.capcom.smsgateway.ui.HolderFragment
 import me.capcom.smsgateway.ui.HomeFragment
 import me.capcom.smsgateway.ui.SettingsFragment
-import me.capcom.smsgateway.helpers.LocaleHelper
 
 class MainActivity : AppCompatActivity() {
 
@@ -67,14 +67,11 @@ class MainActivity : AppCompatActivity() {
 
         override fun getItemCount(): Int = 3
 
-        override fun createFragment(position: Int): Fragment {
-            return when (position) {
-                0 -> HomeFragment.newInstance()
-                1 -> HolderFragment.newInstance()
-                else -> SettingsFragment.newInstance()
-            }
+        override fun createFragment(position: Int): Fragment = when (position) {
+            0 -> HomeFragment.newInstance()
+            1 -> HolderFragment.newInstance()
+            else -> SettingsFragment.newInstance()
         }
-
     }
 
     companion object {
@@ -84,10 +81,8 @@ class MainActivity : AppCompatActivity() {
 
         private const val EXTRA_TAB_INDEX = "tabIndex"
 
-        fun starter(context: Context, tabIndex: Int): Intent {
-            return Intent(context, MainActivity::class.java).apply {
-                putExtra(EXTRA_TAB_INDEX, tabIndex)
-            }
+        fun starter(context: Context, tabIndex: Int): Intent = Intent(context, MainActivity::class.java).apply {
+            putExtra(EXTRA_TAB_INDEX, tabIndex)
         }
     }
 }

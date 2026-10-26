@@ -26,8 +26,10 @@ object SubscriptionsHelper {
 
         val subscriptionManager = getSubscriptionsManager(context) ?: return null
         return when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1 -> subscriptionManager.activeSubscriptionInfoList?.map { it.simSlotIndex }
-                ?.toSet()
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1 ->
+                subscriptionManager.activeSubscriptionInfoList
+                    ?.map { it.simSlotIndex }
+                    ?.toSet()
 
             else -> null
         }
@@ -65,27 +67,23 @@ object SubscriptionsHelper {
         }
     }
 
-    private fun hasPhoneStatePermission(context: Context): Boolean {
-        return ActivityCompat.checkSelfPermission(
-            context,
-            Manifest.permission.READ_PHONE_STATE
-        ) == PackageManager.PERMISSION_GRANTED
-    }
+    private fun hasPhoneStatePermission(context: Context): Boolean = ActivityCompat.checkSelfPermission(
+        context,
+        Manifest.permission.READ_PHONE_STATE
+    ) == PackageManager.PERMISSION_GRANTED
 
     @SuppressLint("InlinedApi")
-    fun extractSubscriptionId(context: Context, intent: Intent): Int? {
-        return when {
-            intent.extras?.containsKey(SubscriptionManager.EXTRA_SUBSCRIPTION_INDEX) == true -> intent.extras?.getInt(
-                SubscriptionManager.EXTRA_SUBSCRIPTION_INDEX
-            )
+    fun extractSubscriptionId(context: Context, intent: Intent): Int? = when {
+        intent.extras?.containsKey(SubscriptionManager.EXTRA_SUBSCRIPTION_INDEX) == true -> intent.extras?.getInt(
+            SubscriptionManager.EXTRA_SUBSCRIPTION_INDEX
+        )
 
-            intent.extras?.containsKey("subscription") == true -> intent.extras?.getInt("subscription")
-            intent.extras?.containsKey(SubscriptionManager.EXTRA_SLOT_INDEX) == true -> intent.extras?.getInt(
-                SubscriptionManager.EXTRA_SLOT_INDEX
-            )?.let { getSubscriptionId(context, it) }
+        intent.extras?.containsKey("subscription") == true -> intent.extras?.getInt("subscription")
+        intent.extras?.containsKey(SubscriptionManager.EXTRA_SLOT_INDEX) == true -> intent.extras?.getInt(
+            SubscriptionManager.EXTRA_SLOT_INDEX
+        )?.let { getSubscriptionId(context, it) }
 
-            else -> null
-        }
+        else -> null
     }
 
     @SuppressLint("MissingPermission")
@@ -142,7 +140,7 @@ object SubscriptionsHelper {
                     null
                 },
                 carrierName = info.carrierName?.toString()?.takeIf { it.isNotBlank() },
-                iccid = info.iccId?.takeIf { it.isNotBlank() },
+                iccid = info.iccId?.takeIf { it.isNotBlank() }
             )
         }
     }
@@ -157,14 +155,12 @@ object SubscriptionsHelper {
     @SuppressLint("MissingPermission")
     private fun resolvePhoneNumber(
         subscriptionManager: SubscriptionManager,
-        info: android.telephony.SubscriptionInfo,
-    ): String? {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            runCatching { subscriptionManager.getPhoneNumber(info.subscriptionId) }
-                .getOrNull()
-                ?.takeIf { it.isNotBlank() }
-        } else {
-            null
-        } ?: info.number?.takeIf { it.isNotBlank() }
-    }
+        info: android.telephony.SubscriptionInfo
+    ): String? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        runCatching { subscriptionManager.getPhoneNumber(info.subscriptionId) }
+            .getOrNull()
+            ?.takeIf { it.isNotBlank() }
+    } else {
+        null
+    } ?: info.number?.takeIf { it.isNotBlank() }
 }

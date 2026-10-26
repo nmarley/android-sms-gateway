@@ -1,6 +1,8 @@
 package me.capcom.smsgateway.modules.messages
 
 import androidx.lifecycle.LiveData
+import java.lang.reflect.Field
+import java.util.Date
 import me.capcom.smsgateway.data.dao.MessagesDao
 import me.capcom.smsgateway.data.entities.Message
 import me.capcom.smsgateway.data.entities.MessageRecipient
@@ -14,8 +16,6 @@ import me.capcom.smsgateway.domain.ProcessingState
 import me.capcom.smsgateway.modules.messages.data.MessageSort
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import java.lang.reflect.Field
-import java.util.Date
 
 class MessagesServiceTest {
 
@@ -30,7 +30,7 @@ class MessagesServiceTest {
             val start: Long,
             val end: Long,
             val limit: Int,
-            val offset: Int,
+            val offset: Int
         )
 
         val selectCalls = mutableListOf<SelectArgs>()
@@ -42,7 +42,7 @@ class MessagesServiceTest {
             start: Long,
             end: Long,
             limit: Int,
-            offset: Int,
+            offset: Int
         ): List<MessageWithRecipients> {
             selectCalls.add(SelectArgs(source, state, start, end, limit, offset))
             return emptyList()
@@ -54,7 +54,7 @@ class MessagesServiceTest {
             start: Long,
             end: Long,
             limit: Int,
-            offset: Int,
+            offset: Int
         ): List<MessageWithRecipients> {
             selectAscendingCalls.add(SelectArgs(source, state, start, end, limit, offset))
             return emptyList()
@@ -81,8 +81,7 @@ class MessagesServiceTest {
         override fun getPendingLifo(now: Date): MessageWithRecipients? =
             throw UnsupportedOperationException("not used in dispatch test")
 
-        override fun nextScheduledTime(): Long? =
-            throw UnsupportedOperationException("not used in dispatch test")
+        override fun nextScheduledTime(): Long? = throw UnsupportedOperationException("not used in dispatch test")
 
         override fun countExpeditedDue(minPriority: Byte, now: Date): Int =
             throw UnsupportedOperationException("not used in dispatch test")
@@ -90,15 +89,10 @@ class MessagesServiceTest {
         override fun get(id: String): MessageWithRecipients? =
             throw UnsupportedOperationException("not used in dispatch test")
 
-        override fun count(
-            source: EntitySource,
-            state: ProcessingState?,
-            start: Long,
-            end: Long,
-        ): Int = throw UnsupportedOperationException("not used in dispatch test")
-
-        override fun _insert(message: Message) =
+        override fun count(source: EntitySource, state: ProcessingState?, start: Long, end: Long): Int =
             throw UnsupportedOperationException("not used in dispatch test")
+
+        override fun _insert(message: Message) = throw UnsupportedOperationException("not used in dispatch test")
 
         override fun _insertRecipients(recipient: List<MessageRecipient>) =
             throw UnsupportedOperationException("not used in dispatch test")
@@ -118,18 +112,11 @@ class MessagesServiceTest {
         override suspend fun _setMessageProcessed(id: String) =
             throw UnsupportedOperationException("not used in dispatch test")
 
-        override fun _updateRecipientState(
-            id: String,
-            phoneNumber: String,
-            state: ProcessingState,
-            error: String?,
-        ) = throw UnsupportedOperationException("not used in dispatch test")
+        override fun _updateRecipientState(id: String, phoneNumber: String, state: ProcessingState, error: String?) =
+            throw UnsupportedOperationException("not used in dispatch test")
 
-        override fun _updateRecipientsState(
-            id: String,
-            state: ProcessingState,
-            error: String?,
-        ) = throw UnsupportedOperationException("not used in dispatch test")
+        override fun _updateRecipientsState(id: String, state: ProcessingState, error: String?) =
+            throw UnsupportedOperationException("not used in dispatch test")
 
         override fun updateSimNumber(id: String, simNumber: Int) =
             throw UnsupportedOperationException("not used in dispatch test")
@@ -137,8 +124,7 @@ class MessagesServiceTest {
         override fun updatePartsCount(id: String, partsCount: Int) =
             throw UnsupportedOperationException("not used in dispatch test")
 
-        override suspend fun truncateLog(until: Long) =
-            throw UnsupportedOperationException("not used in dispatch test")
+        override suspend fun truncateLog(until: Long) = throw UnsupportedOperationException("not used in dispatch test")
     }
 
     private fun messagesServiceWith(fake: MessagesDao): MessagesService {
@@ -180,7 +166,7 @@ class MessagesServiceTest {
             end = 200L,
             limit = 50,
             offset = 10,
-            sort = MessageSort.CreatedAtDesc,
+            sort = MessageSort.CreatedAtDesc
         )
 
         assertEquals(1, fake.selectCalls.size)
@@ -194,7 +180,7 @@ class MessagesServiceTest {
                 50,
                 10
             ),
-            fake.selectCalls[0],
+            fake.selectCalls[0]
         )
         assertEquals(emptyList<MessageWithRecipients>(), result)
     }
@@ -211,7 +197,7 @@ class MessagesServiceTest {
             end = 2000L,
             limit = 25,
             offset = 0,
-            sort = MessageSort.CreatedAtAsc,
+            sort = MessageSort.CreatedAtAsc
         )
 
         assertEquals(0, fake.selectCalls.size)
@@ -225,7 +211,7 @@ class MessagesServiceTest {
                 25,
                 0
             ),
-            fake.selectAscendingCalls[0],
+            fake.selectAscendingCalls[0]
         )
         assertEquals(emptyList<MessageWithRecipients>(), result)
     }

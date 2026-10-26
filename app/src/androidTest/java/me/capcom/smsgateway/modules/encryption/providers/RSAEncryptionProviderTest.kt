@@ -24,7 +24,7 @@ class RSAEncryptionProviderTest : KoinComponent {
                 "",
                 "hello",
                 "unicode: 日本語 и ελληνικά",
-                "a".repeat(1000),
+                "a".repeat(1000)
             )) {
                 assertEquals(plainText, provider.decrypt(provider.encrypt(plainText)))
             }

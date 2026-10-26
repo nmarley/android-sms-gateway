@@ -21,10 +21,7 @@ class MessageDetailsFragment : Fragment() {
 
     private val recipientsAdapter by lazy { MessageRecipientsAdapter() }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         _binding = FragmentMessageDetailsBinding.inflate(inflater, container, false)
         return binding.root
@@ -54,11 +51,10 @@ class MessageDetailsFragment : Fragment() {
 
     companion object {
         private const val ARG_ID = "id"
-        fun newInstance(id: String) =
-            MessageDetailsFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_ID, id)
-                }
+        fun newInstance(id: String) = MessageDetailsFragment().apply {
+            arguments = Bundle().apply {
+                putString(ARG_ID, id)
             }
+        }
     }
 }

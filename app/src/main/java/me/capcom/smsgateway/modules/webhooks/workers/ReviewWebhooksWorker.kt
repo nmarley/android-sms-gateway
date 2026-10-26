@@ -6,16 +6,17 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import java.util.concurrent.TimeUnit
 import me.capcom.smsgateway.R
 import me.capcom.smsgateway.modules.notifications.NotificationsService
 import me.capcom.smsgateway.modules.webhooks.WebHooksService
 import me.capcom.smsgateway.modules.webhooks.domain.WebHookEvent
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import java.util.concurrent.TimeUnit
 
 class ReviewWebhooksWorker(appContext: Context, params: WorkerParameters) :
-    CoroutineWorker(appContext, params), KoinComponent {
+    CoroutineWorker(appContext, params),
+    KoinComponent {
 
     private val webHooksService: WebHooksService by inject()
     private val notificationsService: NotificationsService by inject()

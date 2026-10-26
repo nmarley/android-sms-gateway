@@ -4,9 +4,7 @@ import com.aventrix.jnanoid.jnanoid.NanoIdUtils
 import me.capcom.smsgateway.modules.settings.KeyValueStorage
 import me.capcom.smsgateway.modules.settings.get
 
-class LocalServerSettings(
-    private val storage: KeyValueStorage,
-) {
+class LocalServerSettings(private val storage: KeyValueStorage) {
     var enabled: Boolean
         get() = storage.get<Boolean>(ENABLED) ?: false
         set(value) = storage.set(ENABLED, value)
@@ -29,7 +27,6 @@ class LocalServerSettings(
                 8
             ).also { storage.set(PASSWORD, it) }
 
-
     val jwtSecret: String
         get() = storage.get<String?>(JWT_SECRET)
             ?: NanoIdUtils.randomNanoId(
@@ -42,13 +39,11 @@ class LocalServerSettings(
         get() = storage.get<Long>(JWT_TTL_SECONDS) ?: (24L * 60L * 60L)
         set(value) = storage.set(JWT_TTL_SECONDS, value)
 
-    fun regenerateJwtSecret(): String {
-        return NanoIdUtils.randomNanoId(
-            NanoIdUtils.DEFAULT_NUMBER_GENERATOR,
-            NanoIdUtils.DEFAULT_ALPHABET,
-            48
-        ).also { storage.set(JWT_SECRET, it) }
-    }
+    fun regenerateJwtSecret(): String = NanoIdUtils.randomNanoId(
+        NanoIdUtils.DEFAULT_NUMBER_GENERATOR,
+        NanoIdUtils.DEFAULT_ALPHABET,
+        48
+    ).also { storage.set(JWT_SECRET, it) }
 
     companion object {
         private const val ENABLED = "ENABLED"

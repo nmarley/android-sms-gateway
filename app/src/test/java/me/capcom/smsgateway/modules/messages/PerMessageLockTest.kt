@@ -68,7 +68,7 @@ internal class PerMessageLockTest {
         val secondEntered = CompletableDeferred<Unit>()
         val releaseFirst = CompletableDeferred<Unit>()
 
-val first = launch {
+        val first = launch {
             lock.withLock("msg-1") {
                 events += "first-enter"
                 firstEntered.complete(Unit)
@@ -252,30 +252,29 @@ val first = launch {
     }
 
     @Test
-    fun sameKeyNeverRunsTwoBlocksConcurrentlyUnderThreadedPreemption() =
-        runBlocking(Dispatchers.Default) {
-            // Hammer one key from many threads: even under real preemption between
-            // entry lookup and mutex acquisition, two blocks for the same key must
-            // never execute concurrently (never two holders for the same key).
-            val lock = PerMessageLock()
-            val concurrentHolders = AtomicInteger()
-            val violations = AtomicInteger()
+    fun sameKeyNeverRunsTwoBlocksConcurrentlyUnderThreadedPreemption() = runBlocking(Dispatchers.Default) {
+        // Hammer one key from many threads: even under real preemption between
+        // entry lookup and mutex acquisition, two blocks for the same key must
+        // never execute concurrently (never two holders for the same key).
+        val lock = PerMessageLock()
+        val concurrentHolders = AtomicInteger()
+        val violations = AtomicInteger()
 
-            val jobs = (1..32).map {
-                launch {
-                    repeat(2_000) {
-                        lock.withLock("shared-key") {
-                            val now = concurrentHolders.incrementAndGet()
-                            if (now > 1) violations.incrementAndGet()
-                            Thread.yield()
-                            concurrentHolders.decrementAndGet()
-                        }
+        val jobs = (1..32).map {
+            launch {
+                repeat(2_000) {
+                    lock.withLock("shared-key") {
+                        val now = concurrentHolders.incrementAndGet()
+                        if (now > 1) violations.incrementAndGet()
+                        Thread.yield()
+                        concurrentHolders.decrementAndGet()
                     }
                 }
             }
-            jobs.forEach { it.join() }
-
-            assertEquals(0, violations.get())
-            assertEquals(0, lock.activeLocks())
         }
+        jobs.forEach { it.join() }
+
+        assertEquals(0, violations.get())
+        assertEquals(0, lock.activeLocks())
+    }
 }

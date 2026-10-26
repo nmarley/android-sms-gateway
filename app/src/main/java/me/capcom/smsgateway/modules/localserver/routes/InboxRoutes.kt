@@ -11,6 +11,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
+import java.util.Date
 import kotlinx.coroutines.CancellationException
 import me.capcom.smsgateway.domain.WebhookDelivery
 import me.capcom.smsgateway.helpers.DateTimeParser
@@ -23,14 +24,13 @@ import me.capcom.smsgateway.modules.localserver.auth.requireScope
 import me.capcom.smsgateway.modules.localserver.domain.InboxRefreshRequest
 import me.capcom.smsgateway.modules.mms.MmsAttachmentStorage
 import me.capcom.smsgateway.modules.receiver.ReceiverService
-import java.util.Date
 
 class InboxRoutes(
     private val context: Context,
     private val incomingMessagesService: IncomingMessagesService,
     private val receiverService: ReceiverService,
     private val attachmentStorage: MmsAttachmentStorage,
-    private val settings: LocalServerSettings,
+    private val settings: LocalServerSettings
 ) {
     fun register(routing: Route) {
         routing.inboxRoutes(context)
@@ -200,7 +200,7 @@ class InboxRoutes(
                     request.messageTypes ?: setOf(IncomingMessageType.SMS),
                     request.webhookDelivery
                         ?: (if (request.triggerWebhooks == true) WebhookDelivery.Individual else null)
-                        ?: WebhookDelivery.Disabled,
+                        ?: WebhookDelivery.Disabled
                 )
                 call.respond(HttpStatusCode.Accepted)
             } catch (e: CancellationException) {
@@ -222,31 +222,23 @@ class InboxRoutes(
         val simNumber: Int?,
         val contentPreview: String,
         val createdAt: Date,
-        val attachments: List<AttachmentRef> = emptyList(),
+        val attachments: List<AttachmentRef> = emptyList()
     )
 
-    data class AttachmentRef(
-        val partId: Long,
-        val name: String,
-        val size: Long,
-        val contentType: String,
-    )
+    data class AttachmentRef(val partId: Long, val name: String, val size: Long, val contentType: String)
 
-    private fun listAttachmentRefs(messageId: String): List<AttachmentRef> {
-        return attachmentStorage.list(messageId).map { attachment ->
+    private fun listAttachmentRefs(messageId: String): List<AttachmentRef> =
+        attachmentStorage.list(messageId).map { attachment ->
             AttachmentRef(
                 partId = attachment.partId,
                 name = attachment.displayName,
                 size = attachment.file.length(),
-                contentType = attachment.contentType,
+                contentType = attachment.contentType
             )
         }.sortedBy { it.partId }
-    }
 
-    private fun parseContentType(raw: String): ContentType {
-        return runCatching { ContentType.parse(raw) }
-            .getOrDefault(ContentType.Application.OctetStream)
-    }
+    private fun parseContentType(raw: String): ContentType = runCatching { ContentType.parse(raw) }
+        .getOrDefault(ContentType.Application.OctetStream)
 
     private fun IncomingMessage.toDomain(includeAttachments: Boolean = false) = InboxMessage(
         id = id,
@@ -256,7 +248,7 @@ class InboxRoutes(
         simNumber = simNumber,
         contentPreview = contentPreview,
         createdAt = Date(createdAt),
-        attachments = if (includeAttachments) listAttachmentRefs(id) else emptyList(),
+        attachments = if (includeAttachments) listAttachmentRefs(id) else emptyList()
     )
 }
 

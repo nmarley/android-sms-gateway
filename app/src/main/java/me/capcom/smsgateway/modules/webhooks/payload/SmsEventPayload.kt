@@ -8,7 +8,7 @@ sealed class SmsEventPayload(
     recipient: String?,
     simNumber: Int?,
 
-    phoneNumber: String,
+    phoneNumber: String
 ) : MessageEventPayload(messageId, sender, recipient, simNumber, phoneNumber) {
 
     class SmsSent(
@@ -17,16 +17,11 @@ sealed class SmsEventPayload(
         recipient: String,
         simNumber: Int?,
         val partsCount: Int,
-        val sentAt: Date,
+        val sentAt: Date
     ) : SmsEventPayload(messageId, sender, recipient, simNumber, recipient)
 
-    class SmsDelivered(
-        messageId: String,
-        sender: String?,
-        recipient: String,
-        simNumber: Int?,
-        val deliveredAt: Date,
-    ) : SmsEventPayload(messageId, sender, recipient, simNumber, recipient)
+    class SmsDelivered(messageId: String, sender: String?, recipient: String, simNumber: Int?, val deliveredAt: Date) :
+        SmsEventPayload(messageId, sender, recipient, simNumber, recipient)
 
     class SmsFailed(
         messageId: String,
@@ -34,7 +29,7 @@ sealed class SmsEventPayload(
         recipient: String,
         simNumber: Int?,
         val failedAt: Date,
-        val reason: String,
+        val reason: String
     ) : SmsEventPayload(messageId, sender, recipient, simNumber, recipient)
 
     class SmsReceived(
@@ -43,7 +38,7 @@ sealed class SmsEventPayload(
         recipient: String?,
         simNumber: Int?,
         val message: String,
-        val receivedAt: Date,
+        val receivedAt: Date
     ) : SmsEventPayload(messageId, sender, recipient, simNumber, sender)
 
     class SmsDataReceived(
@@ -52,14 +47,9 @@ sealed class SmsEventPayload(
         recipient: String?,
         simNumber: Int?,
         val data: String,
-        val receivedAt: Date,
+        val receivedAt: Date
     ) : SmsEventPayload(messageId, sender, recipient, simNumber, sender)
 
-    class SmsCancelled(
-        messageId: String,
-        sender: String?,
-        recipient: String,
-        simNumber: Int?,
-        val cancelledAt: Date,
-    ) : SmsEventPayload(messageId, sender, recipient, simNumber, recipient)
+    class SmsCancelled(messageId: String, sender: String?, recipient: String, simNumber: Int?, val cancelledAt: Date) :
+        SmsEventPayload(messageId, sender, recipient, simNumber, recipient)
 }

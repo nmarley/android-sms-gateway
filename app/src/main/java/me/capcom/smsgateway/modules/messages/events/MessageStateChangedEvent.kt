@@ -12,7 +12,7 @@ class MessageStateChangedEvent(
     val simNumber: Int?,
     val partsCount: Int?,
     val error: String?
-): AppEvent(NAME) {
+) : AppEvent(NAME) {
 
     companion object {
         const val NAME = "MessageStateChangedEvent"

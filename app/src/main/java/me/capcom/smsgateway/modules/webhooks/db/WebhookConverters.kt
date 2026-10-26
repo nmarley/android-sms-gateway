@@ -7,12 +7,8 @@ import androidx.room.TypeConverter
  */
 class WebhookConverters {
     @TypeConverter
-    fun fromStatus(status: WebhookStatus): String {
-        return status.value
-    }
+    fun fromStatus(status: WebhookStatus): String = status.value
 
     @TypeConverter
-    fun toStatus(value: String): WebhookStatus {
-        return WebhookStatus.fromValue(value) ?: WebhookStatus.PENDING
-    }
+    fun toStatus(value: String): WebhookStatus = WebhookStatus.fromValue(value) ?: WebhookStatus.PENDING
 }

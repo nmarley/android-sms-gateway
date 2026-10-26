@@ -5,34 +5,27 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import java.text.DateFormat
+import java.util.Date
 import me.capcom.smsgateway.R
 import me.capcom.smsgateway.databinding.ItemLogEntryBinding
 import me.capcom.smsgateway.modules.logs.db.LogEntry
-import java.text.DateFormat
-import java.util.Date
 
-class LogItemsAdapter(
-) : ListAdapter<LogEntry, LogItemsAdapter.ViewHolder>(LogDiffCallback()) {
+class LogItemsAdapter : ListAdapter<LogEntry, LogItemsAdapter.ViewHolder>(LogDiffCallback()) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-
-        return ViewHolder(
-            ItemLogEntryBinding.inflate(
-                LayoutInflater.from(parent.context),
-                parent,
-                false
-            )
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder = ViewHolder(
+        ItemLogEntryBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
         )
-
-    }
+    )
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(getItem(position))
     }
 
-    class ViewHolder(
-        private val binding: ItemLogEntryBinding
-    ) : RecyclerView.ViewHolder(binding.root) {
+    class ViewHolder(private val binding: ItemLogEntryBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: LogEntry) {
             binding.textViewDate.text =
                 DateFormat.getDateTimeInstance().format(Date(item.createdAt))
@@ -51,17 +44,9 @@ class LogItemsAdapter(
     }
 
     class LogDiffCallback : DiffUtil.ItemCallback<LogEntry>() {
-        override fun areItemsTheSame(oldItem: LogEntry, newItem: LogEntry): Boolean {
-            return oldItem.id == newItem.id
-        }
+        override fun areItemsTheSame(oldItem: LogEntry, newItem: LogEntry): Boolean = oldItem.id == newItem.id
 
-        override fun areContentsTheSame(
-            oldItem: LogEntry,
-            newItem: LogEntry
-        ): Boolean {
-            return oldItem.hashCode() == newItem.hashCode()
-        }
-
+        override fun areContentsTheSame(oldItem: LogEntry, newItem: LogEntry): Boolean =
+            oldItem.hashCode() == newItem.hashCode()
     }
-
 }

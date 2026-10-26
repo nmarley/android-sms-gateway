@@ -14,5 +14,5 @@ data class SimCard(
     val simNumber: Int,
     val phoneNumber: String?,
     val carrierName: String?,
-    val iccid: String?,
+    val iccid: String?
 )

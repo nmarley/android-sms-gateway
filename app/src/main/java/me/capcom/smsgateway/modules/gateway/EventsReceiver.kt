@@ -182,6 +182,5 @@ class EventsReceiver : EventsReceiver() {
                 }
             }
         }
-
     }
 }

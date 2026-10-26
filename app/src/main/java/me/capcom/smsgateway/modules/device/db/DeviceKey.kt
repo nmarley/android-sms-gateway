@@ -10,7 +10,7 @@ import androidx.room.PrimaryKey
     indices = [
         Index("retired_at"),
         Index("key_version", unique = true)
-    ],
+    ]
 )
 data class DeviceKey(
     @PrimaryKey(autoGenerate = true)
@@ -26,7 +26,7 @@ data class DeviceKey(
     val createdAt: Long = System.currentTimeMillis(),
 
     @ColumnInfo(name = "retired_at")
-    val retiredAt: Long? = null,
+    val retiredAt: Long? = null
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -35,7 +35,5 @@ data class DeviceKey(
         return id == other.id
     }
 
-    override fun hashCode(): Int {
-        return id.hashCode()
-    }
+    override fun hashCode(): Int = id.hashCode()
 }
