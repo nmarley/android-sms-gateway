@@ -2,8 +2,14 @@ package me.capcom.smsgateway
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
+import android.graphics.Color
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import com.google.android.material.tabs.TabLayoutMediator
 import me.capcom.smsgateway.databinding.ActivityMainBinding
@@ -23,8 +29,11 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        applyWindowInsets()
 
         val adapter = FragmentsAdapter(this)
         binding.viewPager.adapter = adapter
@@ -49,6 +58,41 @@ class MainActivity : AppCompatActivity() {
         }.attach()
 
         processIntent(intent)
+    }
+
+    @Suppress("DEPRECATION")
+    private fun applyWindowInsets() {
+        window.statusBarColor = Color.TRANSPARENT
+        window.navigationBarColor = Color.TRANSPARENT
+
+        val isNightMode = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+            Configuration.UI_MODE_NIGHT_YES
+        WindowCompat.getInsetsController(window, binding.root).apply {
+            isAppearanceLightStatusBars = !isNightMode
+            isAppearanceLightNavigationBars = !isNightMode
+        }
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.tabLayout) { view, insets ->
+            val bars = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+            )
+            view.updatePadding(top = bars.top)
+            insets
+        }
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val bars = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+            )
+            view.updatePadding(
+                left = bars.left,
+                right = bars.right,
+                bottom = bars.bottom
+            )
+            insets
+        }
+
+        ViewCompat.requestApplyInsets(binding.root)
     }
 
     override fun onNewIntent(intent: Intent) {
