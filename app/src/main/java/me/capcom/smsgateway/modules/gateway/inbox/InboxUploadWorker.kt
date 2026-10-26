@@ -1,6 +1,7 @@
 package me.capcom.smsgateway.modules.gateway.inbox
 
 import android.content.Context
+import android.content.pm.ServiceInfo
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
@@ -153,6 +154,10 @@ class InboxUploadWorker(appContext: Context, params: WorkerParameters) :
             NotificationsService.NOTIFICATION_ID_INBOX_WORKER,
             applicationContext.getString(R.string.processing_inbox_queue)
         )
-        return ForegroundInfo(NotificationsService.NOTIFICATION_ID_INBOX_WORKER, notification)
+        return ForegroundInfo(
+            NotificationsService.NOTIFICATION_ID_INBOX_WORKER,
+            notification,
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+        )
     }
 }

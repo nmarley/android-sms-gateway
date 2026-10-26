@@ -3,10 +3,12 @@ package me.capcom.smsgateway.modules.localserver
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
+import androidx.core.app.ServiceCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import io.ktor.http.HttpStatusCode
@@ -222,7 +224,19 @@ class WebService : Service() {
             )
         )
 
-        startForeground(NotificationsService.NOTIFICATION_ID_LOCAL_SERVICE, notification)
+        val foregroundServiceType =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_REMOTE_MESSAGING
+            } else {
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+            }
+
+        ServiceCompat.startForeground(
+            this,
+            NotificationsService.NOTIFICATION_ID_LOCAL_SERVICE,
+            notification,
+            foregroundServiceType
+        )
 
         return super.onStartCommand(intent, flags, startId)
     }

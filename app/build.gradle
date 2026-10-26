@@ -92,7 +92,7 @@ dependencies {
     def okhttp_version = "4.10.0"
     def room_version = "2.7.2"
     def coroutines_version = "1.6.1"
-    def work_version = "2.7.1"
+    def work_version = "2.10.5"
     def koin_version = "3.4.0"
     def lifecycle_version = "2.6.2"
 

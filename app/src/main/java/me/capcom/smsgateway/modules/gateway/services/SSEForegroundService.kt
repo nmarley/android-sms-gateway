@@ -3,11 +3,13 @@ package me.capcom.smsgateway.modules.gateway.services
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
 import android.util.Log
+import androidx.core.app.ServiceCompat
 import me.capcom.smsgateway.R
 import me.capcom.smsgateway.helpers.SSEManager
 import me.capcom.smsgateway.modules.events.ExternalEvent
@@ -98,7 +100,12 @@ class SSEForegroundService : Service() {
             getString(R.string.listening_to_the_server_events)
         )
 
-        startForeground(NotificationsService.NOTIFICATION_ID_REALTIME_EVENTS, notification)
+        ServiceCompat.startForeground(
+            this,
+            NotificationsService.NOTIFICATION_ID_REALTIME_EVENTS,
+            notification,
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+        )
 
         sseManager.connect()
 

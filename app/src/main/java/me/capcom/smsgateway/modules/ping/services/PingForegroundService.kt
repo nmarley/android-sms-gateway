@@ -3,11 +3,13 @@ package me.capcom.smsgateway.modules.ping.services
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
 import android.util.Log
+import androidx.core.app.ServiceCompat
 import kotlin.concurrent.thread
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -79,7 +81,12 @@ class PingForegroundService : Service() {
             getString(R.string.ping_service_is_active)
         )
 
-        startForeground(NotificationsService.NOTIFICATION_ID_PING_SERVICE, notification)
+        ServiceCompat.startForeground(
+            this,
+            NotificationsService.NOTIFICATION_ID_PING_SERVICE,
+            notification,
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+        )
 
         return super.onStartCommand(intent, flags, startId)
     }
