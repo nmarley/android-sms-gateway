@@ -42,7 +42,7 @@ test:
 
 # Check formatting and lint (does not modify files)
 check:
-    bash gradlew ktlintCheck detekt
+    bash gradlew ktlintCheck detekt lintDebug
 
 # Auto-format code
 fmt:
