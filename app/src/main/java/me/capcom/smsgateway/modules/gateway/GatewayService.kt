@@ -15,6 +15,7 @@ import me.capcom.smsgateway.modules.gateway.inbox.InboxUploadService
 import me.capcom.smsgateway.modules.gateway.inbox.InboxUploadWorker
 import me.capcom.smsgateway.modules.gateway.services.SSEForegroundService
 import me.capcom.smsgateway.modules.gateway.workers.PullMessagesWorker
+import me.capcom.smsgateway.modules.gateway.workers.RegistrationWorker
 import me.capcom.smsgateway.modules.gateway.workers.SendStateWorker
 import me.capcom.smsgateway.modules.gateway.workers.SettingsUpdateWorker
 import me.capcom.smsgateway.modules.gateway.workers.WebhooksUpdateWorker
@@ -26,7 +27,6 @@ import me.capcom.smsgateway.modules.messages.MessagesSettings
 import me.capcom.smsgateway.modules.messages.data.SendParams
 import me.capcom.smsgateway.modules.messages.data.SendRequest
 import me.capcom.smsgateway.modules.receiver.data.InboxMessage
-import me.capcom.smsgateway.services.PushService
 import java.util.Date
 
 class GatewayService(
@@ -51,7 +51,7 @@ class GatewayService(
     fun start(context: Context) {
         if (!settings.enabled) return
 
-        PushService.register(context)
+        RegistrationWorker.start(context, false)
         PullMessagesWorker.start(context)
         WebhooksUpdateWorker.start(context)
         SettingsUpdateWorker.start(context)
@@ -114,7 +114,6 @@ class GatewayService(
     //region Device
     internal suspend fun registerDevice(
         context: Context,
-        pushToken: String?,
         registerMode: RegistrationMode
     ) {
         if (!settings.enabled) return
@@ -123,9 +122,9 @@ class GatewayService(
         val accessToken = settings?.token
 
         if (accessToken != null) {
-            // if there's an access token, try to update push token
+            // if there's an access token, try to update the device
             try {
-                updateDevice(context, pushToken)
+                updateDevice(context)
                 return
             } catch (e: ClientRequestException) {
                 // if token is invalid, try to register new one
@@ -141,7 +140,7 @@ class GatewayService(
             val keyInfo = deviceService.ensureKey()
             val request = GatewayApi.DeviceRegisterRequest(
                 deviceName,
-                pushToken,
+                null,
                 simCards.toDTO(),
                 publicKey = keyInfo?.publicKeyBase64,
                 keyVersion = keyInfo?.keyVersion,
@@ -155,7 +154,6 @@ class GatewayService(
                 )
             }
 
-            this.settings.fcmToken = pushToken
             this.settings.registrationInfo = response
 
             events.emit(
@@ -177,7 +175,7 @@ class GatewayService(
         }
     }
 
-    internal suspend fun updateDevice(context: Context, pushToken: String?) {
+    internal suspend fun updateDevice(context: Context) {
         if (!settings.enabled) return
 
         val settings = settings.registrationInfo ?: return
@@ -189,14 +187,12 @@ class GatewayService(
             accessToken,
             GatewayApi.DevicePatchRequest(
                 settings.id,
-                pushToken,
+                null,
                 encryptionKey?.publicKeyBase64,
                 encryptionKey?.keyVersion,
                 simCards.toDTO(),
             )
         )
-
-        this.settings.fcmToken = pushToken
 
         events.emit(
             DeviceRegisteredEvent.Success(

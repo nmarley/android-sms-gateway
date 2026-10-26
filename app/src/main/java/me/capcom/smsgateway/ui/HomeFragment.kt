@@ -84,7 +84,6 @@ class HomeFragment : Fragment() {
                         try {
                             gatewaySvc.registerDevice(
                                 requireContext(),
-                                null,
                                 GatewayService.RegistrationMode.WithCredentials(username, password)
                             )
                             requestPermissionsAndStart()
@@ -104,7 +103,6 @@ class HomeFragment : Fragment() {
                         try {
                             gatewaySvc.registerDevice(
                                 requireContext(),
-                                null,
                                 GatewayService.RegistrationMode.WithCode(code)
                             )
                             requestPermissionsAndStart()

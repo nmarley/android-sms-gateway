@@ -134,7 +134,6 @@ class EventsReceiver : EventsReceiver() {
                         Log.d("EventsReceiver", "Event: $it")
 
                         if (!settings.enabled) return@collect
-                        if (settings.fcmToken != null) return@collect
 
                         SSEForegroundService.start(get())
                     } catch (e: CancellationException) {
@@ -179,7 +178,7 @@ class EventsReceiver : EventsReceiver() {
 
                     if (!settings.enabled) return@collect
 
-                    RegistrationWorker.start(get(), settings.fcmToken, true)
+                    RegistrationWorker.start(get(), true)
                 }
             }
         }

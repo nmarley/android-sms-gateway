@@ -27,14 +27,12 @@ class RegistrationWorker(
 
     override suspend fun doWork(): Result {
         try {
-            val token = inputData.getString(DATA_TOKEN)
             val isUpdate = inputData.getBoolean(DATA_IS_UPDATE, false)
 
             when (isUpdate) {
-                true -> App.instance.gatewayService.updateDevice(applicationContext, token ?: return Result.success())
+                true -> App.instance.gatewayService.updateDevice(applicationContext)
                 false -> App.instance.gatewayService.registerDevice(
                     applicationContext,
-                    token,
                     GatewayService.RegistrationMode.Anonymous
                 )
             }
@@ -44,10 +42,7 @@ class RegistrationWorker(
             logsSvc.insert(
                 priority = LogEntry.Priority.ERROR,
                 module = NAME,
-                message = "Registration failed: ${e.message}",
-                context = mapOf(
-                    "token" to inputData.getString(DATA_TOKEN)
-                )
+                message = "Registration failed: ${e.message}"
             )
             e.printStackTrace()
             return Result.retry()
@@ -57,10 +52,9 @@ class RegistrationWorker(
     companion object {
         private const val NAME = "RegistrationWorker"
 
-        private const val DATA_TOKEN = "token"
         private const val DATA_IS_UPDATE = "isUpdate"
 
-        fun start(context: Context, token: String?, isUpdate: Boolean) {
+        fun start(context: Context, isUpdate: Boolean) {
             val work = OneTimeWorkRequestBuilder<RegistrationWorker>()
                 .setConstraints(
                     Constraints.Builder()
@@ -74,7 +68,6 @@ class RegistrationWorker(
                 )
                 .setInputData(
                     workDataOf(
-                        DATA_TOKEN to token,
                         DATA_IS_UPDATE to isUpdate,
                     )
                 )
