@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.os.Build
+import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
@@ -63,11 +63,12 @@ class EventsReceiver :
                 addAction(ACTION_DELIVERED)
                 addAction(ACTION_MMS_SENT)
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                context.registerReceiver(getInstance(), filter, Context.RECEIVER_NOT_EXPORTED)
-            } else {
-                context.registerReceiver(getInstance(), filter)
-            }
+            ContextCompat.registerReceiver(
+                context,
+                getInstance(),
+                filter,
+                ContextCompat.RECEIVER_NOT_EXPORTED
+            )
         }
     }
 }

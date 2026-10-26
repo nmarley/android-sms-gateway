@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.telephony.SubscriptionManager
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import me.capcom.smsgateway.modules.localserver.domain.SimCard
 
@@ -153,6 +154,7 @@ object SubscriptionsHelper {
      * the carrier never provisioned the number.
      */
     @SuppressLint("MissingPermission")
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
     private fun resolvePhoneNumber(
         subscriptionManager: SubscriptionManager,
         info: android.telephony.SubscriptionInfo
